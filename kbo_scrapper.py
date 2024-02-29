@@ -33,7 +33,8 @@ driver.get('https://www.koreabaseball.com/Schedule/GameCenter/Main.aspx')
 # %%
 driver.execute_script("getGameDate('{}');".format(date.today().strftime('%Y%m%d')))
 time.sleep(0.3)
-coming_up = pd.DataFrame([[date.fromisoformat(x.get_attribute('g_dt')), x.get_attribute('away_nm'), x.get_attribute('home_nm')] for x in driver.find_elements(By.XPATH, '//li[@class="game-cont"]')], columns = ['date', 'away', 'home'])
+coming_up = pd.DataFrame([[x.get_attribute('away_nm'), x.get_attribute('home_nm')] for x in driver.find_elements(By.XPATH, '//li[@class="game-cont"]')], columns = ['away', 'home'])
+coming_up.name = date.fromisoformat(driver.find_element(By.XPATH, '//li[@class="game-cont"]').get_attribute('g_dt'))
 if coming_up == pd.read_pickle('data/comingup_games.pkl'):
     sys.exit()
 coming_up.to_pickle('data/comingup_games.pkl')

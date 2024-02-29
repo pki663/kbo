@@ -97,7 +97,7 @@ if __name__ == '__main__':
     for coming_idx in coming.drop_duplicates(subset = ['away', 'home']).index:
         win_table = initial_table.copy(deep=True)
         draw_table = initial_table.copy(deep=True)
-        for idx in games_df.loc[games_df['date'] < coming.loc[coming_idx, 'date']].index:
+        for idx in games_df.loc[games_df['date'] < coming.name].index:
             if games_df.loc[idx, 'win'] == 'draw':
                 draw_table.loc[games_df.loc[idx, 'home'], games_df.loc[idx, 'away']] += 1
                 draw_table.loc[games_df.loc[idx, 'away'], games_df.loc[idx, 'home']] += 1
