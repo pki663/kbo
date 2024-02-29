@@ -94,7 +94,7 @@ if __name__ == '__main__':
     if not isinstance(coming, pd.DataFrame):
         sys.exit()
     cli = pd.DataFrame(columns = ['date', 'cLI', 'cWin', 'cLose', 'pLI', 'pWin', 'pLose'])
-    for coming_idx in coming.index:
+    for coming_idx in coming.drop_duplicates(subset = ['away', 'home']).index:
         win_table = initial_table.copy(deep=True)
         draw_table = initial_table.copy(deep=True)
         for idx in games_df.loc[games_df['date'] < coming.loc[coming_idx, 'date']].index:
