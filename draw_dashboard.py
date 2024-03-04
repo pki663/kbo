@@ -50,11 +50,11 @@ content = html.Div(id='page-content', style = {"margin-left": "18rem", "margin-r
 # 팀별 순위변화 읽는 예시: standing.xs('한화', level = 1)
 # 날짜별 순위표 읽는 예시: standing.loc[date(2023, 4, 15): date(2023, 4, 25)]
 
-uniform_result = pd.read_pickle('data/2023_uniform_prob.pkl')
-log5_result = pd.read_pickle('data/2023_log5_prob.pkl')
-coming_li = pd.read_pickle('data/li_2023july.pkl')
-standing = pd.read_pickle('data/2023_standing.pkl')
-coming = pd.read_pickle('data/comingup_games.pkl')
+uniform_result = pd.read_pickle('data/2023/2023_uniform_prob.pkl')
+log5_result = pd.read_pickle('data/2023/2023_log5_prob.pkl')
+coming_li = pd.read_pickle('data/simple_li.pkl')
+standing = pd.read_pickle('data/2023/2023_standing.pkl')
+coming = pd.read_pickle('data/simple_comingup.pkl')
 
 days_list = sorted(uniform_result.index.get_level_values(0).drop_duplicates())
 
@@ -77,8 +77,9 @@ def print_coming(comingup, comingup_li):
     coming_games = []
     for idx in comingup.index:
         game_df = pd.DataFrame(
-            columns = [comingup.loc[idx, 'away'], comingup.loc[idx, 'home']],
-            data = comingup_li.loc[[comingup.loc[idx, 'away'], comingup.loc[idx, 'home']], ['cLI', 'cWin', 'cLose', 'pLI', 'pWin', 'pLose']].astype(float).round(3).T.values)
+            data = comingup_li.loc[[(comingup.loc[idx, 'date'], comingup.loc[idx, 'away']), (comingup.loc[idx, 'date'], comingup.loc[idx, 'home'])]].astype(float).round(3).T.values,
+            columns = [comingup.loc[idx, 'away'], comingup.loc[idx, 'home']]
+        )
         game_df['VS'] = ['우승 중요도', '승리 시 우승 확률', '패배 시 우승 확률', '포스트시즌 진출 중요도', '승리 시 포스트시즌 진출 확률', '패배 시 포스트시즌 진출 확률']
         game_df = game_df[[comingup.loc[idx, 'away'], 'VS', comingup.loc[idx, 'home']]]
         coming_games.append(dash_table.DataTable(
@@ -161,9 +162,9 @@ def render_now_figure(fig_selection):
 
 @app.callback(Output("future-fig", 'figure'), Input("cwli-psli", 'value'))
 def render_future_figure(fig_selection):
-    last_result = uniform_result.loc[:max([x for x in days_list if x < coming_li['date'].max()])]
+    last_result = uniform_result.loc[:max([x for x in days_list if x < coming_li.index.get_level_values(0).max()])]
     fig = go.Figure(layout = go.Layout(hovermode='x'))
-    fig.update_xaxes(title_text = '날짜', range = [[x for x in days_list if x < coming_li['date'].max()][-6], coming_li['date'].max()], fixedrange = True)
+    fig.update_xaxes(title_text = '날짜', range = [[x for x in days_list if x < coming_li.index.get_level_values(0).max()][-6], coming_li.index.get_level_values(0).max()], fixedrange = True)
     fig.update_yaxes(title_text = '확률', range = [0, 1], fixedrange = True)
     if fig_selection == 'cwli':
         fig.update_layout(title_text = '2023 시즌 KBO 팀별 우승 확률 예측')
@@ -173,16 +174,17 @@ def render_future_figure(fig_selection):
                 y = last_result.xs(team, level = 1)[1],
                 name = team, mode = 'lines+markers',
                 line = {'color': color[0]}, marker = {'color': color[1], 'size': 3}))
-            fig.add_trace(go.Scatter(
-                x=[last_result.index.get_level_values(0).max(), coming_li['date'].max()],
-                y = [last_result.loc[(last_result.index.get_level_values(0).max(), team), 1], coming_li.loc[team, 'cWin']],
-                mode = 'lines+text', line = {'color': color[0], 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip',
-                text=['', round(coming_li.loc[team, 'cWin'], 3) if coming_li.loc[team, 'cLI'] > 1 else ''], textposition='top left'))
-            fig.add_trace(go.Scatter(
-                x=[last_result.index.get_level_values(0).max(), coming_li['date'].max()],
-                y = [last_result.loc[(last_result.index.get_level_values(0).max(), team), 1], coming_li.loc[team, 'cLose']],
-                mode = 'lines+text', line = {'color': color[0], 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip',
-                text=['', round(coming_li.loc[team, 'cLose'], 3) if coming_li.loc[team, 'cLI'] > 1 else ''], textposition='bottom left'))
+            if team in coming_li.loc[coming_li.index.get_level_values(0).max()].index:
+                fig.add_trace(go.Scatter(
+                    x=[last_result.index.get_level_values(0).max(), coming_li.index.get_level_values(0).max()],
+                    y = [last_result.loc[(last_result.index.get_level_values(0).max(), team), 1], coming_li.xs(team, level = 1)['cWin'].iloc[-1]],
+                    mode = 'lines+text', line = {'color': color[0], 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip',
+                    text=['', round(coming_li.xs(team, level = 1)['cWin'].iloc[-1], 3) if coming_li.xs(team, level = 1)['cLI'].iloc[-1] > 1 else ''], textposition='top left'))
+                fig.add_trace(go.Scatter(
+                    x=[last_result.index.get_level_values(0).max(), coming_li.index.get_level_values(0).max()],
+                    y = [last_result.loc[(last_result.index.get_level_values(0).max(), team), 1], coming_li.xs(team, level = 1)['cLose'].iloc[-1]],
+                    mode = 'lines+text', line = {'color': color[0], 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip',
+                    text=['', round(coming_li.xs(team, level = 1)['cLose'].iloc[-1], 3) if coming_li.xs(team, level = 1)['cLI'].iloc[-1] > 1 else ''], textposition='bottom left'))
     elif fig_selection == 'psli':
         fig.update_layout(title_text = '2023 시즌 KBO 팀별 포스트시즌 진출 확률 예측')
         for team, color in team_color.items():
@@ -191,16 +193,17 @@ def render_future_figure(fig_selection):
                 y = last_result.xs(team, level = 1).loc[:, 1:5].sum(axis = 1),
                 name = team, mode = 'lines+markers',
                 line = {'color': color[0]}, marker = {'color': color[1], 'size': 3}))
-            fig.add_trace(go.Scatter(
-                x=[last_result.index.get_level_values(0).max(), coming_li['date'].max()],
-                y = [last_result.loc[(last_result.index.get_level_values(0).max(), team), 1:5].sum(), coming_li.loc[team, 'pWin']],
-                mode = 'lines+text', line = {'color': color[0], 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip',
-                text=['', round(coming_li.loc[team, 'pWin'], 3) if coming_li.loc[team, 'pLI'] > 1 else ''], textposition='top left'))
-            fig.add_trace(go.Scatter(
-                x=[last_result.index.get_level_values(0).max(), coming_li['date'].max()],
-                y = [last_result.loc[(last_result.index.get_level_values(0).max(), team), 1:5].sum(), coming_li.loc[team, 'pLose']],
-                mode = 'lines+text', line = {'color': color[0], 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip',
-                text=['', round(coming_li.loc[team, 'pLose'], 3) if coming_li.loc[team, 'pLI'] > 1 else ''], textposition='bottom left'))
+            if team in coming_li.loc[coming_li.index.get_level_values(0).max()].index:
+                fig.add_trace(go.Scatter(
+                    x=[last_result.index.get_level_values(0).max(), coming_li.index.get_level_values(0).max()],
+                    y = [last_result.loc[(last_result.index.get_level_values(0).max(), team), 1:5].sum(), coming_li.xs(team, level = 1)['pWin'].iloc[-1]],
+                    mode = 'lines+text', line = {'color': color[0], 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip',
+                    text=['', round(coming_li.xs(team, level = 1)['pWin'].iloc[-1], 3) if coming_li.xs(team, level = 1)['pLI'].iloc[-1] > 1 else ''], textposition='top left'))
+                fig.add_trace(go.Scatter(
+                    x=[last_result.index.get_level_values(0).max(), coming_li.index.get_level_values(0).max()],
+                    y = [last_result.loc[(last_result.index.get_level_values(0).max(), team), 1:5].sum(), coming_li.xs(team, level = 1)['pLose'].iloc[-1]],
+                    mode = 'lines+text', line = {'color': color[0], 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip',
+                    text=['', round(coming_li.xs(team, level = 1)['pLose'].iloc[-1], 3) if coming_li.xs(team, level = 1)['pLI'].iloc[-1] > 1 else ''], textposition='bottom left'))
     return fig
 
 @app.callback(Output("team-standing", 'figure'), Input("team-dropdown", 'value'))

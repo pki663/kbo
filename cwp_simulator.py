@@ -18,6 +18,7 @@ parser.add_argument('--game_path', dest = 'game_path', action = 'store', type = 
 parser.add_argument('--probability_path', dest = 'probability_path', action = 'store', type = str, default = False)
 parser.add_argument('--standing_path', dest = 'standing_path', action = 'store', type = str, default = False)
 parser.add_argument('--comingup_path', dest = 'comingup_path', action = 'store', type = str, default = False)
+parser.add_argument('--cli_path', dest = 'cli_path', action = 'store', type = str, default = False)
 parser.add_argument('--probability_output', dest = 'probability_output', action = 'store', type = str, default = 'prob_{}.pkl'.format(date.today().isoformat()))
 parser.add_argument('--standing_output', dest = 'standing_output', action = 'store', type = str, default = 'standing_{}.pkl'.format(date.today().isoformat()))
 parser.add_argument('--cli_output', dest = 'cli_output', action = 'store', type = str, default = 'cli_{}.pkl'.format(date.today().isoformat()))
@@ -29,10 +30,10 @@ team_list = [x for x in games_df['home'].drop_duplicates().tolist() if x not in 
 initial_table = pd.DataFrame(0, index = team_list, columns = team_list)
 
 standing_probability = pd.read_pickle(args.probability_path) if args.probability_path else pd.DataFrame(
-    index = pd.MultiIndex([[], []], [[],[]], names = ['date', 'team']),
+    index = pd.MultiIndex([[],[]], [[],[]], names = ['date', 'team']),
     columns = range(1,1 + len(team_list)))
 standing = pd.read_pickle(args.standing_path) if args.standing_path else pd.DataFrame(
-    index = pd.MultiIndex([[], []], [[],[]], names = ['date', 'team']),
+    index = pd.MultiIndex([[],[]], [[],[]], names = ['date', 'team']),
     columns = ['승', '패', '무', '승률', '승차'])
 coming = pd.read_pickle(args.comingup_path) if args.comingup_path else False
 if isinstance(args.winratio, str) and os.path.isfile(args.winratio):
@@ -93,7 +94,9 @@ if __name__ == '__main__':
     # cLI 시뮬레이션 시행
     if not isinstance(coming, pd.DataFrame):
         sys.exit()
-    cli = pd.DataFrame(columns = ['date', 'cLI', 'cWin', 'cLose', 'pLI', 'pWin', 'pLose'])
+    cli = pd.read_pickle(args.cli_path) if args.cli_path else pd.DataFrame(
+    index = pd.MultiIndex([[],[]], [[],[]], names = ['date', 'team']),
+    columns = ['cLI', 'cWin', 'cLose', 'pLI', 'pWin', 'pLose'])
     for coming_idx in coming.drop_duplicates(subset = ['away', 'home']).index:
         win_table = initial_table.copy(deep=True)
         draw_table = initial_table.copy(deep=True)
@@ -113,21 +116,22 @@ if __name__ == '__main__':
         pool.join()
         homewin_simulation_summary = sum(output_list) / args.simulation_try
         # 원정팀이 승리한 경우
+        win_if_awaywin = win_table.copy()
+        win_if_awaywin.loc[coming.loc[coming_idx, 'away'], coming.loc[coming_idx, 'home']] += 1
         pool = multiprocessing.Pool(processes = args.process_num)
-        output_list = pool.starmap(season_simulation, [(16 - (win_if_homewin.T + win_if_homewin + draw_table), win_if_homewin.T, draw_table, win_ratio, args.simulation_try // args.process_num)] * args.process_num)
+        output_list = pool.starmap(season_simulation, [(16 - (win_if_awaywin + win_if_awaywin.T + draw_table), win_if_awaywin, draw_table, win_ratio, args.simulation_try // args.process_num)] * args.process_num)
         pool.close()
         pool.join()
         awaywin_simulation_summary = sum(output_list) / args.simulation_try
         # cLI 계산
-        cli.loc[coming.loc[coming_idx, 'home'], 'cWin'] = homewin_simulation_summary.loc[coming.loc[coming_idx, 'home'], 1]
-        cli.loc[coming.loc[coming_idx, 'home'], 'cLose'] = awaywin_simulation_summary.loc[coming.loc[coming_idx, 'home'], 1]
-        cli.loc[coming.loc[coming_idx, 'away'], 'cWin'] = awaywin_simulation_summary.loc[coming.loc[coming_idx, 'away'], 1]
-        cli.loc[coming.loc[coming_idx, 'away'], 'cLose'] = homewin_simulation_summary.loc[coming.loc[coming_idx, 'away'], 1]
-        cli.loc[coming.loc[coming_idx, 'home'], 'pWin'] = homewin_simulation_summary.loc[coming.loc[coming_idx, 'home'], :5].sum()
-        cli.loc[coming.loc[coming_idx, 'home'], 'pLose'] = awaywin_simulation_summary.loc[coming.loc[coming_idx, 'home'], :5].sum()
-        cli.loc[coming.loc[coming_idx, 'away'], 'pWin'] = awaywin_simulation_summary.loc[coming.loc[coming_idx, 'away'], :5].sum()
-        cli.loc[coming.loc[coming_idx, 'away'], 'pLose'] = homewin_simulation_summary.loc[coming.loc[coming_idx, 'away'], :5].sum()
-        cli.loc[coming.loc[coming_idx, ['away', 'home']].tolist(), 'date'] = coming.loc[coming_idx, 'date']
+        cli.loc[(coming.loc[coming_idx, 'date'], coming.loc[coming_idx, 'home']), 'cWin'] = homewin_simulation_summary.loc[coming.loc[coming_idx, 'home'], 1]
+        cli.loc[(coming.loc[coming_idx, 'date'], coming.loc[coming_idx, 'home']), 'cLose'] = awaywin_simulation_summary.loc[coming.loc[coming_idx, 'home'], 1]
+        cli.loc[(coming.loc[coming_idx, 'date'], coming.loc[coming_idx, 'away']), 'cWin'] = awaywin_simulation_summary.loc[coming.loc[coming_idx, 'away'], 1]
+        cli.loc[(coming.loc[coming_idx, 'date'], coming.loc[coming_idx, 'away']), 'cLose'] = homewin_simulation_summary.loc[coming.loc[coming_idx, 'away'], 1]
+        cli.loc[(coming.loc[coming_idx, 'date'], coming.loc[coming_idx, 'home']), 'pWin'] = homewin_simulation_summary.loc[coming.loc[coming_idx, 'home'], :5].sum()
+        cli.loc[(coming.loc[coming_idx, 'date'], coming.loc[coming_idx, 'home']), 'pLose'] = awaywin_simulation_summary.loc[coming.loc[coming_idx, 'home'], :5].sum()
+        cli.loc[(coming.loc[coming_idx, 'date'], coming.loc[coming_idx, 'away']), 'pWin'] = awaywin_simulation_summary.loc[coming.loc[coming_idx, 'away'], :5].sum()
+        cli.loc[(coming.loc[coming_idx, 'date'], coming.loc[coming_idx, 'away']), 'pLose'] = homewin_simulation_summary.loc[coming.loc[coming_idx, 'away'], :5].sum()
 
         cli['cLI'] = (cli['cWin'] - cli['cLose']) / 0.02954
         cli['pLI'] = (cli['pWin'] - cli['pLose']) / 0.06363
