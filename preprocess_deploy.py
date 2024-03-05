@@ -38,10 +38,10 @@ for team, color in team_color.items():
 
 last_result = uniform_result.loc[:max([x for x in days_list if x < coming_li.index.get_level_values(0).max()])]
 future_championship_fig = go.Figure(layout = go.Layout(hovermode='x'))
-future_championship_fig.update_xaxes(title_text = '날짜', range = [[x for x in days_list if x < coming_li.index.get_level_values(0).max()][-6], coming_li.index.get_level_values(0).max()], fixedrange = True)
+future_championship_fig.update_xaxes(title_text = '날짜', range = [coming_li.index.get_level_values(0).max() - timedelta(days = 7), coming_li.index.get_level_values(0).max()], fixedrange = True)
 future_championship_fig.update_yaxes(title_text = '확률', range = [0, 1], fixedrange = True)
 future_postseason_fig = go.Figure(layout = go.Layout(hovermode='x'))
-future_postseason_fig.update_xaxes(title_text = '날짜', range = [[x for x in days_list if x < coming_li.index.get_level_values(0).max()][-6], coming_li.index.get_level_values(0).max()], fixedrange = True)
+future_postseason_fig.update_xaxes(title_text = '날짜', range = [coming_li.index.get_level_values(0).max() - timedelta(days = 7), coming_li.index.get_level_values(0).max()], fixedrange = True)
 future_postseason_fig.update_yaxes(title_text = '확률', range = [0, 1], fixedrange = True)
 future_championship_fig.update_layout(title_text = '2023 시즌 KBO 팀별 우승 확률 예측')
 future_postseason_fig.update_layout(title_text = '2023 시즌 KBO 팀별 포스트시즌 진출 확률 예측')

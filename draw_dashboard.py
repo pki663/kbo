@@ -50,11 +50,11 @@ content = html.Div(id='page-content', style = {"margin-left": "18rem", "margin-r
 # 팀별 순위변화 읽는 예시: standing.xs('한화', level = 1)
 # 날짜별 순위표 읽는 예시: standing.loc[date(2023, 4, 15): date(2023, 4, 25)]
 
-uniform_result = pd.read_pickle('data/2023/uniform_probability.pkl')
-log5_result = pd.read_pickle('data/2023/log5_probability.pkl')
-coming_li = pd.read_pickle('data/2023/li.pkl')
-standing = pd.read_pickle('data/2023/standing.pkl')
-coming = pd.read_pickle('data/2023/comingup_games.pkl')
+uniform_result = pd.read_pickle('data/uniform_probability.pkl')
+log5_result = pd.read_pickle('data/log5_probability.pkl')
+coming_li = pd.read_pickle('data/li.pkl')
+standing = pd.read_pickle('data/standing.pkl')
+coming = pd.read_pickle('data/comingup_games.pkl')
 
 days_list = sorted(uniform_result.index.get_level_values(0).drop_duplicates())
 
@@ -164,7 +164,7 @@ def render_now_figure(fig_selection):
 def render_future_figure(fig_selection):
     last_result = uniform_result.loc[:max([x for x in days_list if x < coming_li.index.get_level_values(0).max()])]
     fig = go.Figure(layout = go.Layout(hovermode='x'))
-    fig.update_xaxes(title_text = '날짜', range = [[x for x in days_list if x < coming_li.index.get_level_values(0).max()][-6], coming_li.index.get_level_values(0).max()], fixedrange = True)
+    fig.update_xaxes(title_text = '날짜', range = [coming_li.index.get_level_values(0).max() - timedelta(days = 7), coming_li.index.get_level_values(0).max()], fixedrange = True)
     fig.update_yaxes(title_text = '확률', range = [0, 1], fixedrange = True)
     if fig_selection == 'cwli':
         fig.update_layout(title_text = '2023 시즌 KBO 팀별 우승 확률 예측')
