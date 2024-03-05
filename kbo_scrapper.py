@@ -8,7 +8,7 @@ import time
 import sys
 
 #%%
-game_df = pd.read_csv('data/complete_games.csv', index_col= None, header = 0)
+game_df = pd.read_pickle('data/complete_games.csv', index_col= None, header = 0)
 #%%
 if 'Linux' == platform.system():
     from webdriver_manager.firefox import GeckoDriverManager

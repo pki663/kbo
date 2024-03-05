@@ -16,10 +16,10 @@ team_color = {
     '키움':['#570514', '#B07F4A']
 }
 
-uniform_result = pd.read_pickle('data/2023/2023_uniform_prob.pkl')
-log5_result = pd.read_pickle('data/2023/2023_log5_prob.pkl')
+uniform_result = pd.read_pickle('data/uniform_probability.pkl')
+log5_result = pd.read_pickle('data/log5_probability.pkl')
 coming_li = pd.read_pickle('data/li.pkl')
-standing = pd.read_pickle('data/2023/2023_standing.pkl')
+standing = pd.read_pickle('data/standing.pkl')
 coming = pd.read_pickle('data/comingup_games.pkl')
 
 days_list = sorted(uniform_result.index.get_level_values(0).drop_duplicates())
@@ -81,7 +81,7 @@ for team, color in team_color.items():
             mode = 'lines+text', line = {'color': color[0], 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip',
             text=['', round(coming_li.xs(team, level = 1)['pLose'].iloc[-1], 3) if coming_li.xs(team, level = 1)['pLI'].iloc[-1] > 1 else ''], textposition='bottom left'))
 
-write_json(now_championship_fig, file = 'data/now_championship_fig.json', engine = 'json')
-write_json(now_postseason_fig, file = 'data/now_postseason_fig.json', engine = 'json')
-write_json(future_championship_fig, file = 'data/future_championship_fig.json', engine = 'json')
-write_json(future_postseason_fig, file = 'data/future_postseason_fig.json', engine = 'json')
+write_json(now_championship_fig, file = 'fig/now_championship_fig.json', engine = 'json')
+write_json(now_postseason_fig, file = 'fig/now_postseason_fig.json', engine = 'json')
+write_json(future_championship_fig, file = 'fig/future_championship_fig.json', engine = 'json')
+write_json(future_postseason_fig, file = 'fig/future_postseason_fig.json', engine = 'json')

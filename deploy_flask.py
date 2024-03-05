@@ -57,11 +57,11 @@ app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
 
 # 팀별 순위변화 읽는 예시: standing.xs('한화', level = 1)
 # 날짜별 순위표 읽는 예시: standing.loc[date(2023, 4, 15): date(2023, 4, 25)]
-uniform_result = pd.read_pickle('data/2023/2023_uniform_prob.pkl')
-log5_result = pd.read_pickle('data/2023/2023_log5_prob.pkl')
-coming_li = pd.read_pickle('data/simple_li.pkl')
-standing = pd.read_pickle('data/2023/2023_standing.pkl')
-coming = pd.read_pickle('data/simple_comingup.pkl')
+uniform_result = pd.read_pickle('data/uniform_probability.pkl')
+log5_result = pd.read_pickle('data/log5_probability.pkl')
+coming_li = pd.read_pickle('data/li.pkl')
+standing = pd.read_pickle('data/standing.pkl')
+coming = pd.read_pickle('data/comingup_games.pkl')
 
 days_list = sorted(uniform_result.index.get_level_values(0).drop_duplicates())
 
@@ -102,10 +102,10 @@ for idx in coming.index:
         ]
     ))
 
-now_championship_fig = read_json(file = 'data/now_championship_fig.json', engine = 'json')
-now_postseason_fig = read_json(file = 'data/now_postseason_fig.json', engine = 'json')
-future_championship_fig = read_json(file = 'data/future_championship_fig.json', engine = 'json')
-future_postseason_fig = read_json(file = 'data/future_postseason_fig.json', engine = 'json')
+now_championship_fig = read_json(file = 'fig/now_championship_fig.json', engine = 'json')
+now_postseason_fig = read_json(file = 'fig/now_postseason_fig.json', engine = 'json')
+future_championship_fig = read_json(file = 'fig/future_championship_fig.json', engine = 'json')
+future_postseason_fig = read_json(file = 'fig/future_postseason_fig.json', engine = 'json')
 
 @app.callback(Output("page-content", "children"), Input("url", "pathname"))
 def render_page_content(pathname):
