@@ -50,11 +50,11 @@ content = html.Div(id='page-content', style = {"margin-left": "18rem", "margin-r
 # 팀별 순위변화 읽는 예시: standing.xs('한화', level = 1)
 # 날짜별 순위표 읽는 예시: standing.loc[date(2023, 4, 15): date(2023, 4, 25)]
 
-uniform_result = pd.read_pickle('data/2023/2023_uniform_prob.pkl')
-log5_result = pd.read_pickle('data/2023/2023_log5_prob.pkl')
-coming_li = pd.read_pickle('data/simple_li.pkl')
-standing = pd.read_pickle('data/2023/2023_standing.pkl')
-coming = pd.read_pickle('data/simple_comingup.pkl')
+uniform_result = pd.read_pickle('data/2023/uniform_probability.pkl')
+log5_result = pd.read_pickle('data/2023/log5_probability.pkl')
+coming_li = pd.read_pickle('data/2023/li.pkl')
+standing = pd.read_pickle('data/2023/standing.pkl')
+coming = pd.read_pickle('data/2023/comingup_games.pkl')
 
 days_list = sorted(uniform_result.index.get_level_values(0).drop_duplicates())
 
