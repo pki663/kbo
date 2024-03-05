@@ -77,7 +77,7 @@ if __name__ == '__main__':
             current_standing = pd.DataFrame([win_table.sum(axis = 1), win_table.T.sum(axis = 1), draw_table.sum(axis = 1)], index = ['승', '패', '무']).T
             current_standing['승률'] = current_standing['승'] / (current_standing['승'] + current_standing['패'])
             current_standing.sort_values('승률', ascending=False, inplace = True)
-            current_standing['승차'] = [pd.NA] + [((current_standing.loc[current_standing.index[0], '승'] - current_standing.loc[current_standing.index[0], '패']) - (current_standing.loc[following, '승'] - current_standing.loc[following, '패'])) /2 for following in current_standing.index[1:]]
+            current_standing['승차'] = [((current_standing.loc[current_standing.index[0], '승'] - current_standing.loc[current_standing.index[0], '패']) - (current_standing.loc[following, '승'] - current_standing.loc[following, '패'])) /2 if current_standing.iloc[0]['승률'] != current_standing.loc[following, '승률'] else pd.NA for following in current_standing.index]
             current_standing.index = pd.MultiIndex.from_tuples(zip([cwp_date] * 10 , current_standing.index))
             standing = pd.concat([standing, current_standing])
             standing.to_pickle(args.standing_output)
