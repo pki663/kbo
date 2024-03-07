@@ -57,11 +57,11 @@ app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
 
 # 팀별 순위변화 읽는 예시: standing.xs('한화', level = 1)
 # 날짜별 순위표 읽는 예시: standing.loc[date(2023, 4, 15): date(2023, 4, 25)]
-uniform_result = pd.read_pickle('data/uniform_probability.pkl')
-log5_result = pd.read_pickle('data/log5_probability.pkl')
-coming_li = pd.read_pickle('data/li.pkl')
-standing = pd.read_pickle('data/standing.pkl')
-coming = pd.read_pickle('data/comingup_games.pkl')
+uniform_result = pd.read_pickle('data/2023/uniform_probability.pkl')
+log5_result = pd.read_pickle('data/2023/log5_probability.pkl')
+coming_li = pd.read_pickle('data/2023/li.pkl')
+standing = pd.read_pickle('data/2023/standing.pkl')
+coming = pd.read_pickle('data/2023/comingup_games.pkl')
 
 days_list = sorted(uniform_result.index.get_level_values(0).drop_duplicates())
 
@@ -111,7 +111,7 @@ future_postseason_fig = read_json(file = 'fig/future_postseason_fig.json', engin
 def render_page_content(pathname):
     if pathname == "/":
         return html.Div([
-            html.H2(date.today().isoformat() + " 현재 리그 상황"),
+            html.H2("2023년 KBO 리그 페넌트레이스 최종결과"),
             html.Hr(),
             dcc.Tabs(id = 'cwp-psp', value = 'cwp', children = [
                 dcc.Tab(label = '우승 확률', value = 'cwp'),
@@ -122,7 +122,7 @@ def render_page_content(pathname):
         ])
     elif pathname == "/comingup":
         return html.Div([
-            html.H2("다음 경기 예고"),
+            html.H2("다음 경기 예고 (2023년 7월 1일 테스트 버전)"),
             html.Hr(),
             dcc.Tabs(id = 'cwli-psli', value = 'cwli', children = [
                 dcc.Tab(label = '우승 확률 변화', value = 'cwli'),
@@ -159,49 +159,10 @@ def render_now_figure(fig_selection):
 
 @app.callback(Output("future-fig", 'figure'), Input("cwli-psli", 'value'))
 def render_future_figure(fig_selection):
-    last_result = uniform_result.loc[:max([x for x in days_list if x < coming_li.index.get_level_values(0).max()])]
-    fig = go.Figure(layout = go.Layout(hovermode='x'))
-    fig.update_xaxes(title_text = '날짜', range = [[x for x in days_list if x < coming_li.index.get_level_values(0).max()][-6], coming_li.index.get_level_values(0).max()], fixedrange = True)
-    fig.update_yaxes(title_text = '확률', range = [0, 1], fixedrange = True)
     if fig_selection == 'cwli':
-        fig.update_layout(title_text = '2023 시즌 KBO 팀별 우승 확률 예측')
-        for team, color in team_color.items():
-            fig.add_trace(go.Scatter(
-                x=last_result.index.get_level_values(0).drop_duplicates(),
-                y = last_result.xs(team, level = 1)[1],
-                name = team, mode = 'lines+markers',
-                line = {'color': color[0]}, marker = {'color': color[1], 'size': 3}))
-            if team in coming_li.loc[coming_li.index.get_level_values(0).max()].index:
-                fig.add_trace(go.Scatter(
-                    x=[last_result.index.get_level_values(0).max(), coming_li.index.get_level_values(0).max()],
-                    y = [last_result.loc[(last_result.index.get_level_values(0).max(), team), 1], coming_li.xs(team, level = 1)['cWin'].iloc[-1]],
-                    mode = 'lines+text', line = {'color': color[0], 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip',
-                    text=['', round(coming_li.xs(team, level = 1)['cWin'].iloc[-1], 3) if coming_li.xs(team, level = 1)['cLI'].iloc[-1] > 1 else ''], textposition='top left'))
-                fig.add_trace(go.Scatter(
-                    x=[last_result.index.get_level_values(0).max(), coming_li.index.get_level_values(0).max()],
-                    y = [last_result.loc[(last_result.index.get_level_values(0).max(), team), 1], coming_li.xs(team, level = 1)['cLose'].iloc[-1]],
-                    mode = 'lines+text', line = {'color': color[0], 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip',
-                    text=['', round(coming_li.xs(team, level = 1)['cLose'].iloc[-1], 3) if coming_li.xs(team, level = 1)['cLI'].iloc[-1] > 1 else ''], textposition='bottom left'))
+        return future_championship_fig
     elif fig_selection == 'psli':
-        fig.update_layout(title_text = '2023 시즌 KBO 팀별 포스트시즌 진출 확률 예측')
-        for team, color in team_color.items():
-            fig.add_trace(go.Scatter(
-                x=last_result.index.get_level_values(0).drop_duplicates(),
-                y = last_result.xs(team, level = 1).loc[:, 1:5].sum(axis = 1),
-                name = team, mode = 'lines+markers',
-                line = {'color': color[0]}, marker = {'color': color[1], 'size': 3}))
-            if team in coming_li.loc[coming_li.index.get_level_values(0).max()].index:
-                fig.add_trace(go.Scatter(
-                    x=[last_result.index.get_level_values(0).max(), coming_li.index.get_level_values(0).max()],
-                    y = [last_result.loc[(last_result.index.get_level_values(0).max(), team), 1:5].sum(), coming_li.xs(team, level = 1)['pWin'].iloc[-1]],
-                    mode = 'lines+text', line = {'color': color[0], 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip',
-                    text=['', round(coming_li.xs(team, level = 1)['pWin'].iloc[-1], 3) if coming_li.xs(team, level = 1)['pLI'].iloc[-1] > 1 else ''], textposition='top left'))
-                fig.add_trace(go.Scatter(
-                    x=[last_result.index.get_level_values(0).max(), coming_li.index.get_level_values(0).max()],
-                    y = [last_result.loc[(last_result.index.get_level_values(0).max(), team), 1:5].sum(), coming_li.xs(team, level = 1)['pLose'].iloc[-1]],
-                    mode = 'lines+text', line = {'color': color[0], 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip',
-                    text=['', round(coming_li.xs(team, level = 1)['pLose'].iloc[-1], 3) if coming_li.xs(team, level = 1)['pLI'].iloc[-1] > 1 else ''], textposition='bottom left'))
-    return fig
+        return future_postseason_fig
 
 @app.callback(Output("team-standing", 'figure'), Input("team-dropdown", 'value'))
 def render_team_figure(team_selection):
