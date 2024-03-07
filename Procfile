@@ -1,1 +1,1 @@
-web: gunicorn deploy_flask:server
+web: gunicorn deploy_flask:application
