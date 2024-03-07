@@ -33,7 +33,8 @@ jobs:
       run: |
         git config --local user.email "sooo@novelmaterial@gmail.com"
         git config --local user.name "Sooo Kim" # 커밋에 포함될 이름
-        git add ./output
+        git add ./data
+        if [[ ! `git status --porcelain` ]]; then exit 0; fi
         git commit -m "Auto - Update games data" # 커밋 메세지
     - name: Push - scrap
       uses: ad-m/github-push-action@master
@@ -42,12 +43,13 @@ jobs:
         github_token: $
     - name: League simulation with python
       run: |
-        python "cwp_simulator.py" -p 4 --game_path '\data\completed.games.pkl' --probability_path '\data\uniform_probability.pkl' --standing_path '\data\standing.pkl' --comingup_path '\data\comingup_games.pkl' --cli_path '\data\li.pkl' --probability_output '\data\uniform_probability.pkl' --standing_output '\data\standing.pkl' --cli_output '\data\li.pkl'
+        python "cwp_simulator.py" -p 4 --game_path '/data/completed.games.pkl' --probability_path '/data/uniform_probability.pkl' --standing_path '/data/standing.pkl' --comingup_path '/data/comingup_games.pkl' --cli_path '/data/li.pkl' --probability_output '/data/uniform_probability.pkl' --standing_output '/data/standing.pkl' --cli_output '/data/li.pkl'
     - name: Commits - simulation
       run: |
         git config --local user.email "sooo@novelmaterial@gmail.com"
         git config --local user.name "Sooo Kim" # 커밋에 포함될 이름
-        git add ./output
+        git add ./fig
+        if [[ ! `git status --porcelain` ]]; then exit 0; fi
         git commit -m "Auto - Simulation" # 커밋 메세지
     - name: Push - simulation
       uses: ad-m/github-push-action@master
