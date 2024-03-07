@@ -8,7 +8,7 @@ import time
 import sys
 
 #%%
-game_df = pd.read_pickle('data/complete_games.csv', index_col= None, header = 0)
+game_df = pd.read_pickle('data/completed_games.pkl')
 #%%
 if 'Linux' == platform.system():
     from webdriver_manager.firefox import GeckoDriverManager
@@ -34,7 +34,7 @@ driver.get('https://www.koreabaseball.com/Schedule/GameCenter/Main.aspx')
 driver.execute_script("getGameDate('{}');".format(date.today().strftime('%Y%m%d')))
 time.sleep(0.3)
 coming_up = pd.DataFrame([[date.fromisoformat(x.get_attribute('g_dt')), x.get_attribute('away_nm'), x.get_attribute('home_nm')] for x in driver.find_elements(By.XPATH, '//li[@class="game-cont"]')], columns = ['date', 'away', 'home'])
-if coming_up == pd.read_pickle('data/comingup_games.pkl'):
+if (coming_up.values == pd.read_pickle('data/comingup_games.pkl').values).min().min():
     sys.exit()
 coming_up.to_pickle('data/comingup_games.pkl')
 
@@ -46,4 +46,4 @@ for current in [game_df['date'].max() + timedelta(days=x) for x in range(1, int(
     game_df = pd.concat([game_df, pd.DataFrame([[date.fromisoformat(x.get_attribute('g_dt')), x.get_attribute('away_nm'), x.get_attribute('home_nm'), x.find_element(By.XPATH, './/span[contains(@class, "win")]/../../../div[@class="emb"]/img').get_attribute('alt') if x.find_elements(By.CLASS_NAME, 'win') else 'draw'] for x in driver.find_elements(By.XPATH, '//li[@class="game-cont end"]')], columns = game_df.columns)])
 
 # %%
-game_df.to_pickle('data/complete_games.pkl')
+game_df.to_pickle('data/completed_games.pkl')
