@@ -26,7 +26,7 @@ parser.add_argument('--cli_output', dest = 'cli_output', action = 'store', type 
 args = parser.parse_args()
 
 games_df = pd.read_pickle(args.game_path)
-team_list = [x for x in games_df['home'].drop_duplicates().tolist() if x not in ['드림', '나눔']]
+team_list = ['LG', 'KT', 'SSG', 'NC', '두산', 'KIA', '롯데', '삼성', '한화', '키움']
 initial_table = pd.DataFrame(0, index = team_list, columns = team_list)
 
 standing_probability = pd.read_pickle(args.probability_path) if args.probability_path else pd.DataFrame(
