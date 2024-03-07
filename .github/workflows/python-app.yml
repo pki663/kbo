@@ -4,9 +4,12 @@
 name: KBO scrapper - Update data
 
 on:
-  push:
-    branches:
-      - master
+  workflow_dispatch:
+    inputs:
+      runSimulation:
+        description: 'Determine if run simulation or not'
+        default: true
+        type: boolean
 
 permissions: write-all
 
@@ -28,7 +31,7 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: KBO Scraper with python
       run: |
-        python "kbo_scrapper.py"
+        if [ ${{ inputs.runSimulation }} ]; then python "kbo_scrapper.py"; fi
     - name: Commits - scrap
       run: |
         git config --local user.email "sooo@novelmaterial@gmail.com"
@@ -43,7 +46,7 @@ jobs:
         github_token: $
     - name: League simulation with python
       run: |
-        python "cwp_simulator.py" -p 4 --game_path '/data/completed.games.pkl' --probability_path '/data/uniform_probability.pkl' --standing_path '/data/standing.pkl' --comingup_path '/data/comingup_games.pkl' --cli_path '/data/li.pkl' --probability_output '/data/uniform_probability.pkl' --standing_output '/data/standing.pkl' --cli_output '/data/li.pkl'
+        python "cwp_simulator.py" -p 4 --game_path 'data/completed_games.pkl' --probability_path 'data/uniform_probability.pkl' --standing_path 'data/standing.pkl' --comingup_path 'data/comingup_games.pkl' --cli_path 'data/li.pkl' --probability_output 'data/uniform_probability.pkl' --standing_output 'data/standing.pkl' --cli_output 'data/li.pkl'
     - name: Commits - simulation
       run: |
         git config --local user.email "sooo@novelmaterial@gmail.com"
