@@ -4,12 +4,7 @@
 name: KBO scrapper - Update data
 
 on:
-  workflow_dispatch:
-    inputs:
-      runSimulation:
-        description: 'Determine if run simulation or not'
-        default: true
-        type: boolean
+  workflow_dispatch
 
 permissions: write-all
 
@@ -31,7 +26,7 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: KBO Scraper with python
       run: |
-        if [ ${{ inputs.runSimulation }} ]; then python "kbo_scrapper.py"; fi
+        python "kbo_scrapper.py"; fi
     - name: Commits - scrap
       run: |
         git config --local user.email "sooo@novelmaterial@gmail.com"
