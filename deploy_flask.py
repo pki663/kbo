@@ -3,7 +3,7 @@ import plotly.graph_objects as go
 from plotly.io import read_json
 import pandas as pd
 from datetime import date, timedelta
-from dash import Dash, html, dcc, Input, Output, callback, dash_table
+from dash import Dash, html, dcc, Input, Output, callback, dash_table, get_asset_url
 from dash.dash_table.Format import Format, Scheme
 import dash_bootstrap_components as dbc
 
@@ -28,6 +28,7 @@ navbar = dbc.NavbarSimple(
         dbc.NavLink("리그 현황", href="/", active="exact"),
         dbc.NavLink("다음경기 분석", href="/comingup", active="exact"),
         dbc.NavLink("순위 분석", href="/standing", active="exact"),
+        dbc.NavLink("도움말", href="/help", active='exact')
     ],
     fluid = True,
     brand='우승각',
@@ -133,6 +134,17 @@ def render_page_content(pathname):
             dcc.Graph(id = 'date-team'),
             dcc.Graph(id = 'date-standing')
         ])
+    elif pathname == '/help':
+        return html.Div([
+            html.H3("도움말"),
+            dcc.Tabs(id = 'help-index', value = 'cli', children = [
+                dcc.Tab(label = '우승 확률이란?', value = 'cli'),
+                dcc.Tab(label = '리그 현황', value = 'now'),
+                dcc.Tab(label = '다음경기 분석', value = 'future'),
+                dcc.Tab(label = '순위 분석', value = 'standing')
+            ]),
+            html.Div(id = 'tutorial-contents')
+        ])
     # If the user tries to reach a different page, return a 404 message
     return html.Div(
         [
@@ -196,6 +208,19 @@ def render_datestanding_figure(date_selection):
     fig.update_xaxes(fixedrange = True)
     fig.update_yaxes(title_text = '해당 순위 확률', range = [0, 1], fixedrange = True)
     return fig
+
+@app.callback(Output("tutorial-contents", 'children'), Input("help-index", 'value'))
+def show_tutorial(request_index):
+    if request_index == 'cli':
+        return [html.H4('그래그래 설명이 없어서 미안해')]
+    elif request_index == 'now':
+        return [html.Img(src=get_asset_url('basic_1.png')), html.Img(src=get_asset_url('draganddrop.png'))]
+    elif request_index == 'future':
+        return [html.Img(src=get_asset_url('basic_2.png'))]
+    elif request_index == 'standing':
+        return [html.Img(src=get_asset_url('basic_3.png')), html.Img(src=get_asset_url('basic_4.png'))]
+    else:
+        return []
 
 if __name__ == '__main__':
     application.debug = True
