@@ -18,35 +18,25 @@ team_color = {
     '키움':['#570514', '#B07F4A']
 }
 
-sidebar = html.Div(
-    [
-        html.H2("우승각"),
-        html.Hr(),
-        html.P(
-            "KBO 리그 각 팀들의 우승 및 포스트시즌 진출 확률 등 시즌 흐름에 대한 정보와 예측을 제공합니다.", className="lead", style = {'font-size': '14px'}
-        ),
-        dbc.Nav(
-            [
-                dbc.NavLink("리그 현황", href="/", active="exact"),
-                dbc.NavLink("다음경기 분석", href="/comingup", active="exact"),
-                dbc.NavLink("순위 분석", href="/standing", active="exact"),
-            ],
-            vertical=True,
-            pills=True,
-        ),
+navbar = dbc.NavbarSimple(
+    children = [
+        dbc.NavLink("리그 현황", href="/", active="exact"),
+        dbc.NavLink("다음경기 분석", href="/comingup", active="exact"),
+        dbc.NavLink("순위 분석", href="/standing", active="exact"),
     ],
-    style={
+    fluid = True,
+    brand='우승각',
+    color='primary',
+    dark = True,
+    style = {
         "position": "fixed",
-        "top": 0,
-        "left": 0,
-        "bottom": 0,
-        "width": "16rem",
-        "padding": "2rem 1rem",
-        "background-color": "#f8f9fa",
+        'top': 0,
+        'width': '100%',
+        'zIndex': 100
     }
 )
 
-content = html.Div(id='page-content', style = {"margin-left": "18rem", "margin-right": "2rem", "padding": "2rem 1rem"})
+content = html.Div(id='page-content', style = {"margin-left": "0.5rem", "margin-right": "0.5rem", "padding-top": "60px"})
 # 팀별 순위변화 읽는 예시: standing.xs('한화', level = 1)
 # 날짜별 순위표 읽는 예시: standing.loc[date(2023, 4, 15): date(2023, 4, 25)]
 
@@ -87,7 +77,7 @@ def print_coming(comingup, comingup_li):
             [{'name': i, 'id': i} for i in game_df.columns.tolist()],
             style_header = {'text-align': 'center', 'padding': '3px', 'fontWeight': 'bold'},
             style_data = {'text-align': 'center', 'padding': '3px'},
-            style_table={'margin-left': 'auto', 'margin-right': 'auto', 'margin-bottom': '10px', 'width': '50%'},
+            style_table={'margin-left': 'auto', 'margin-right': 'auto', 'margin-bottom': '10px', 'width': '70%'},
             style_cell_conditional = [
                 {
                     'if': {'column_id': team},
@@ -100,7 +90,7 @@ def print_coming(comingup, comingup_li):
         
 app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 server = app.server
-app.layout = html.Div([dcc.Location(id="url"), sidebar, content])
+app.layout = html.Div([dcc.Location(id="url"), navbar, content])
 
 @app.callback(Output("page-content", "children"), Input("url", "pathname"))
 def render_page_content(pathname):
@@ -129,9 +119,10 @@ def render_page_content(pathname):
         ] + print_coming(coming, coming_li))
     elif pathname == "/standing":
         return html.Div([
-            dcc.Dropdown(list(team_color.keys()), '', id = 'team-dropdown', placeholder='분석할 팀을 선택해주세요'),
+            dcc.Dropdown(list(team_color.keys()), '', id = 'team-dropdown', placeholder='분석할 팀을 선택해주세요', style = {"margin-left": "0.5rem", 'width': '50%'}),
             dcc.Graph(id = 'team-standing'),
-            dcc.DatePickerSingle(id = 'calender', min_date_allowed=uniform_result.index.get_level_values(level = 0).min(), max_date_allowed=uniform_result.index.get_level_values(level = 0).max(), disabled_days=[x for x in pd.date_range(start = uniform_result.index.get_level_values(level = 0).min(), end = uniform_result.index.get_level_values(level = 0).max()).date if x not in uniform_result.index.get_level_values(level = 0)], date = uniform_result.index.get_level_values(level = 0).max()),
+            html.Hr(),
+            dcc.DatePickerSingle(id = 'calender', min_date_allowed=uniform_result.index.get_level_values(level = 0).min(), max_date_allowed=uniform_result.index.get_level_values(level = 0).max(), disabled_days=[x for x in pd.date_range(start = uniform_result.index.get_level_values(level = 0).min(), end = uniform_result.index.get_level_values(level = 0).max()).date if x not in uniform_result.index.get_level_values(level = 0)], date = uniform_result.index.get_level_values(level = 0).max(), style = {"margin-left": "1rem"}),
             dcc.Graph(id = 'date-team'),
             dcc.Graph(id = 'date-standing')
         ])
