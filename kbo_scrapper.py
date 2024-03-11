@@ -46,4 +46,4 @@ for current in [game_df['date'].max() + timedelta(days=x) for x in range(1, int(
     game_df = pd.concat([game_df, pd.DataFrame([[date.fromisoformat(x.get_attribute('g_dt')), x.get_attribute('away_nm'), x.get_attribute('home_nm'), x.find_element(By.XPATH, './/span[contains(@class, "win")]/../../../div[@class="emb"]/img').get_attribute('alt') if x.find_elements(By.CLASS_NAME, 'win') else 'draw'] for x in driver.find_elements(By.XPATH, '//li[@class="game-cont end"]')], columns = game_df.columns)])
 
 # %%
-game_df.to_pickle('data/completed_games.pkl')
+game_df.reset_index(drop = True).to_pickle('data/completed_games.pkl')
