@@ -6,6 +6,7 @@ from datetime import date, timedelta
 from dash import Dash, html, dcc, Input, Output, callback, dash_table, get_asset_url
 from dash.dash_table.Format import Format, Scheme
 import dash_bootstrap_components as dbc
+import pickle
 
 application = flask.Flask(__name__)
 app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP], server = application)
@@ -56,42 +57,11 @@ coming = pd.read_pickle('data/2023/comingup_games.pkl')
 
 days_list = sorted(uniform_result.index.get_level_values(0).drop_duplicates())
 
-today_standing = standing.loc[standing.index.get_level_values(0).max()].reset_index(names = '팀명')
-today_standing = pd.concat([today_standing['승률'].rank(method = 'min', ascending=False).astype(int).rename('순위'), today_standing], axis = 1)
-today_standing = dash_table.DataTable(
-    today_standing.to_dict('records'),
-    [{'name': i, 'id': i} if i != '승률' else {'name': i, 'id': i, 'type': 'numeric', 'format': Format(precision=3, scheme=Scheme.fixed)} for i in today_standing.columns.tolist()],
-    style_data_conditional=[
-        {'if': {'row_index': [idx for idx, x in enumerate(today_standing['팀명']) if uniform_result.loc[(standing.index.get_level_values(0).max(), x), 1:5].sum() == 1.0]}, 'backgroundColor': '#BEF5CE'},
-        {'if': {'row_index': [idx for idx, x in enumerate(today_standing['팀명']) if uniform_result.loc[(standing.index.get_level_values(0).max(), x), 1] == 1.0]}, 'backgroundColor': '#F5F0AE'},
-        {'if': {'row_index': [idx for idx, x in enumerate(today_standing['팀명']) if uniform_result.loc[(standing.index.get_level_values(0).max(), x), 6:10].sum() == 1.0]}, 'backgroundColor': '#F5B2AF'},
-        {'if': {'row_index': [idx for idx, x in enumerate(today_standing['팀명']) if uniform_result.loc[(standing.index.get_level_values(0).max(), x)].max() == 1.0]},
-        'border-bottom': '2px solid black'}
-    ],
-    style_cell_conditional=[{'if': {'column_id': ['순위', '팀명']}, 'fontWeight': 'bold'}])
+with open('fig/standing.pkl', 'rb') as fr:
+    today_standing = pickle.load(fr)
 
-coming_games = []
-for idx in coming.index:
-    game_df = pd.DataFrame(
-        data = coming_li.loc[[(coming.loc[idx, 'date'], coming.loc[idx, 'away']), (coming.loc[idx, 'date'], coming.loc[idx, 'home'])]].astype(float).round(3).T.values,
-        columns = [coming.loc[idx, 'away'], coming.loc[idx, 'home']]
-    )
-    game_df['VS'] = ['우승 중요도', '승리 시 우승 확률', '패배 시 우승 확률', '포스트시즌 진출 중요도', '승리 시 포스트시즌 진출 확률', '패배 시 포스트시즌 진출 확률']
-    game_df = game_df[[coming.loc[idx, 'away'], 'VS', coming.loc[idx, 'home']]]
-    coming_games.append(dash_table.DataTable(
-        game_df.to_dict('records'),
-        [{'name': i, 'id': i} for i in game_df.columns.tolist()],
-        style_header = {'text-align': 'center', 'padding': '3px', 'fontWeight': 'bold'},
-        style_data = {'text-align': 'center', 'padding': '3px'},
-        style_table={'margin-left': 'auto', 'margin-right': 'auto', 'margin-bottom': '10px', 'width': '70%'},
-        style_cell_conditional = [
-            {
-                'if': {'column_id': team},
-                'backgroundColor': color[0],
-                'color': color[1]
-            } for team, color in team_color.items()
-        ]
-    ))
+with open('fig/comingup.pkl', 'rb') as fr:
+    coming_games = pickle.load(fr)
 
 now_championship_fig = read_json(file = 'fig/now_championship_fig.json', engine = 'json')
 now_postseason_fig = read_json(file = 'fig/now_postseason_fig.json', engine = 'json')

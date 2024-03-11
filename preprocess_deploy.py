@@ -2,6 +2,9 @@ import plotly.graph_objects as go
 from plotly.io import write_json
 import pandas as pd
 from datetime import date, timedelta
+from dash import dash_table
+from dash.dash_table.Format import Format, Scheme
+import pickle
 
 team_color = {
     'LG':['#C30452', '#000000'],
@@ -16,11 +19,11 @@ team_color = {
     '키움':['#570514', '#B07F4A']
 }
 
-uniform_result = pd.read_pickle('data/uniform_probability.pkl')
-log5_result = pd.read_pickle('data/log5_probability.pkl')
-coming_li = pd.read_pickle('data/li.pkl')
-standing = pd.read_pickle('data/standing.pkl')
-coming = pd.read_pickle('data/comingup_games.pkl')
+uniform_result = pd.read_pickle('data/2023/uniform_probability.pkl')
+log5_result = pd.read_pickle('data/2023/log5_probability.pkl')
+coming_li = pd.read_pickle('data/2023/li.pkl')
+standing = pd.read_pickle('data/2023/standing.pkl')
+coming = pd.read_pickle('data/2023/comingup_games.pkl')
 
 days_list = sorted(uniform_result.index.get_level_values(0).drop_duplicates())
 
@@ -81,7 +84,48 @@ for team, color in team_color.items():
             mode = 'lines+text', line = {'color': color[0], 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip',
             text=['', round(coming_li.xs(team, level = 1)['pLose'].iloc[-1], 3) if coming_li.xs(team, level = 1)['pLI'].iloc[-1] > 1 else ''], textposition='bottom left'))
 
+today_standing = standing.loc[standing.index.get_level_values(0).max()].reset_index(names = '팀명')
+today_standing = pd.concat([today_standing['승률'].rank(method = 'min', ascending=False).astype(int).rename('순위'), today_standing], axis = 1)
+today_standing = dash_table.DataTable(
+    today_standing.to_dict('records'),
+    [{'name': i, 'id': i} if i != '승률' else {'name': i, 'id': i, 'type': 'numeric', 'format': Format(precision=3, scheme=Scheme.fixed)} for i in today_standing.columns.tolist()],
+    style_data_conditional=[
+        {'if': {'row_index': [idx for idx, x in enumerate(today_standing['팀명']) if uniform_result.loc[(standing.index.get_level_values(0).max(), x), 1:5].sum() == 1.0]}, 'backgroundColor': '#BEF5CE'},
+        {'if': {'row_index': [idx for idx, x in enumerate(today_standing['팀명']) if uniform_result.loc[(standing.index.get_level_values(0).max(), x), 1] == 1.0]}, 'backgroundColor': '#F5F0AE'},
+        {'if': {'row_index': [idx for idx, x in enumerate(today_standing['팀명']) if uniform_result.loc[(standing.index.get_level_values(0).max(), x), 6:10].sum() == 1.0]}, 'backgroundColor': '#F5B2AF'},
+        {'if': {'row_index': [idx for idx, x in enumerate(today_standing['팀명']) if uniform_result.loc[(standing.index.get_level_values(0).max(), x)].max() == 1.0]},
+        'border-bottom': '2px solid black'}
+    ],
+    style_cell_conditional=[{'if': {'column_id': ['순위', '팀명']}, 'fontWeight': 'bold'}])
+
+coming_games = []
+for idx in coming.index:
+    game_df = pd.DataFrame(
+        data = coming_li.loc[[(coming.loc[idx, 'date'], coming.loc[idx, 'away']), (coming.loc[idx, 'date'], coming.loc[idx, 'home'])]].astype(float).round(3).T.values,
+        columns = [coming.loc[idx, 'away'], coming.loc[idx, 'home']]
+    )
+    game_df['VS'] = ['우승 중요도', '승리 시 우승 확률', '패배 시 우승 확률', '포스트시즌 진출 중요도', '승리 시 포스트시즌 진출 확률', '패배 시 포스트시즌 진출 확률']
+    game_df = game_df[[coming.loc[idx, 'away'], 'VS', coming.loc[idx, 'home']]]
+    coming_games.append(dash_table.DataTable(
+        game_df.to_dict('records'),
+        [{'name': i, 'id': i} for i in game_df.columns.tolist()],
+        style_header = {'text-align': 'center', 'padding': '3px', 'fontWeight': 'bold'},
+        style_data = {'text-align': 'center', 'padding': '3px'},
+        style_table={'margin-left': 'auto', 'margin-right': 'auto', 'margin-bottom': '10px', 'width': '70%'},
+        style_cell_conditional = [
+            {
+                'if': {'column_id': team},
+                'backgroundColor': color[0],
+                'color': color[1]
+            } for team, color in team_color.items()
+        ]
+    ))
+
 write_json(now_championship_fig, file = 'fig/now_championship_fig.json', engine = 'json')
 write_json(now_postseason_fig, file = 'fig/now_postseason_fig.json', engine = 'json')
 write_json(future_championship_fig, file = 'fig/future_championship_fig.json', engine = 'json')
 write_json(future_postseason_fig, file = 'fig/future_postseason_fig.json', engine = 'json')
+with open('fig/standing.pkl', 'wb') as fw:
+    pickle.dump(obj = today_standing, file = fw)
+with open('fig/comingup.pkl', 'wb') as fw:
+    pickle.dump(obj = coming_games, file = fw)
