@@ -35,15 +35,14 @@ navbar = dbc.NavbarSimple(
     brand='우승각',
     color='primary',
     dark = True,
+    sticky = 'top',
     style = {
-        "position": "fixed",
-        'top': 0,
         'width': '100%',
         'zIndex': 100
     }
 )
 
-content = html.Div(id='page-content', style = {"margin-left": "0.5rem", "margin-right": "0.5rem", "padding-top": "60px"})
+content = html.Div(id='page-content', style = {"margin-left": "0.5rem", "margin-right": "0.5rem", "padding-top": "10px"})
 
 app.layout = html.Div([dcc.Location(id="url"), navbar, content])
 
@@ -83,7 +82,7 @@ def render_page_content(pathname):
         ])
     elif pathname == "/comingup":
         return html.Div([
-            html.H2("다음 경기 예고 (2023년 7월 1일 테스트 버전)"),
+            html.H2("다음 경기 예고 (테스트 버전)"),
             html.Hr(),
             dcc.Tabs(id = 'cwli-psli', value = 'cwli', children = [
                 dcc.Tab(label = '우승 확률 변화', value = 'cwli'),
@@ -96,11 +95,11 @@ def render_page_content(pathname):
     elif pathname == "/standing":
         return html.Div([
             html.H3("팀 별 시즌 중 순위 확률 변화 분석"),
-            dcc.Dropdown(list(team_color.keys()), '', id = 'team-dropdown', placeholder='분석할 팀을 선택해주세요', style = {"margin-left": "0.5rem", 'width': '50%'}),
+            dcc.Dropdown(list(team_color.keys()), '', id = 'team-dropdown', placeholder='분석할 팀을 선택해주세요', style = {"margin-left": "0.5rem", 'width': '80%', 'border-width': '2px', 'border-color': 'gray'}),
             dcc.Graph(id = 'team-standing'),
             html.Hr(),
             html.H3("날짜별 순위별 확률 분석"),
-            dcc.DatePickerSingle(id = 'calender', min_date_allowed=uniform_result.index.get_level_values(level = 0).min(), max_date_allowed=uniform_result.index.get_level_values(level = 0).max(), disabled_days=[x for x in pd.date_range(start = uniform_result.index.get_level_values(level = 0).min(), end = uniform_result.index.get_level_values(level = 0).max()).date if x not in uniform_result.index.get_level_values(level = 0)], date = uniform_result.index.get_level_values(level = 0).max(), style = {"margin-left": "1rem"}),
+            dcc.DatePickerSingle(id = 'calender', min_date_allowed=uniform_result.index.get_level_values(level = 0).min(), max_date_allowed=uniform_result.index.get_level_values(level = 0).max(), disabled_days=[x for x in pd.date_range(start = uniform_result.index.get_level_values(level = 0).min(), end = uniform_result.index.get_level_values(level = 0).max()).date if x not in uniform_result.index.get_level_values(level = 0)], placeholder='날짜 선택', display_format='YYYY-MM-DD', style = {"margin-left": "1rem", 'border' : '2px solid gray'}),
             dcc.Graph(id = 'date-team'),
             dcc.Graph(id = 'date-standing')
         ])
@@ -149,32 +148,36 @@ def render_team_figure(team_selection):
         for rank in range(10, 0, -1)
     ], layout = go.Layout(title = go.layout.Title(text = team_selection + ' 시즌 중 각 순위별 확률 변동'),
         hovermode = 'x'))
-    fig.update_layout(barmode = 'stack')
+    fig.update_layout(barmode = 'stack', margin_l=10, margin_r=10, margin_b=10, margin_t=40)
     fig.update_yaxes(title_text = '해당 순위 확률', range = [0, 1], fixedrange = True)
     return fig
 
 @app.callback(Output("date-team", 'figure'), Input("calender", 'date'))
 def render_dateteam_figure(date_selection):
+    if pd.isna(date_selection):
+        return go.Figure()
     date_result = uniform_result.loc[date.fromisoformat(date_selection)]
     fig = go.Figure(data = [
         go.Bar(name = str(rank) + '위', x = date_result.index, y = date_result[rank])
         for rank in range(10, 0, -1)
     ], layout = go.Layout(title = go.layout.Title(text = date_selection + ' 각 팀별 순위확률'), 
         hovermode = 'x'))
-    fig.update_layout(barmode = 'stack')
+    fig.update_layout(barmode = 'stack', margin_l=10, margin_r=10, margin_b=10, margin_t=40)
     fig.update_xaxes(fixedrange = True)
     fig.update_yaxes(title_text = '해당 순위 확률', range = [0, 1], fixedrange = True)
     return fig
 
 @app.callback(Output("date-standing", 'figure'), Input("calender", 'date'))
 def render_datestanding_figure(date_selection):
+    if pd.isna(date_selection):
+        return go.Figure()
     date_result = uniform_result.loc[date.fromisoformat(date_selection)]
     fig = go.Figure(data = [
         go.Bar(name = team, x = [str(rank) + '위' for rank in range(1,11)], y = date_result.loc[team], marker_pattern_bgcolor = color[0], marker_pattern_fgcolor = color[1], marker_pattern_shape = '.', marker_pattern_size = 5)
         for team, color in team_color.items()
     ], layout = go.Layout(title = go.layout.Title(text = date_selection + ' 각 순위별 확률'), 
         hovermode = 'x'))
-    fig.update_layout(barmode = 'stack')
+    fig.update_layout(barmode = 'stack', margin_l=10, margin_r=10, margin_b=10, margin_t=40)
     fig.update_xaxes(fixedrange = True)
     fig.update_yaxes(title_text = '해당 순위 확률', range = [0, 1], fixedrange = True)
     return fig
