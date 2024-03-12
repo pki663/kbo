@@ -9,7 +9,17 @@ import dash_bootstrap_components as dbc
 import pickle
 
 application = flask.Flask(__name__)
-app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP], server = application)
+app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP], server = application, meta_tags=[
+    {'property': 'og:type', 'content': 'website'},
+    {'property': 'og:url', 'content': 'https://kbograph.com'},
+    {'property': 'og:title', 'content': '크보그래프'},
+    {'property': 'og:description', 'content': 'KBO 리그의 실시간 우승 및 포스트시즌 진출 확률 분석 사이트'},
+    {'property': 'og:locale', 'content': 'ko_KR'},
+    {'property': 'og:image', 'content': 'https://kbograph.com/assets/og_image.png'},
+    {'property': 'og:image:width', 'content': '1200'},
+    {'property': 'og:image:height', 'content': '630'}])
+app._favicon = 'kbograph.ico'
+app.title = 'KBOGraph'
 
 team_color = {
     'LG':['#C30452', '#000000'],
@@ -32,7 +42,7 @@ navbar = dbc.NavbarSimple(
         dbc.NavLink("도움말", href="/help", active='exact')
     ],
     fluid = True,
-    brand='우승각',
+    brand='크보그래프',
     color='primary',
     dark = True,
     sticky = 'top',
@@ -43,7 +53,6 @@ navbar = dbc.NavbarSimple(
 )
 
 content = html.Div(id='page-content', style = {"margin-left": "0.5rem", "margin-right": "0.5rem", "padding-top": "10px"})
-
 app.layout = html.Div([dcc.Location(id="url"), navbar, content])
 
 # 팀별 순위변화 읽는 예시: standing.xs('한화', level = 1)
@@ -259,5 +268,4 @@ def show_tutorial(request_index):
         return []
 
 if __name__ == '__main__':
-    application.debug = True
     application.run()
