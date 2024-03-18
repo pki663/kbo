@@ -52,7 +52,7 @@ navbar = dbc.NavbarSimple(
     }
 )
 
-content = html.Div(id='page-content', style = {"margin-left": "auto", "margin-right": "auto", "padding-top": "10px", 'padding-left': '0.5rem', 'padding-right': '0.5rem'})
+content = html.Div(id='page-content', style = {"padding-top": "10px", 'padding-left': '0.5rem', 'padding-right': '0.5rem'})
 app.layout = html.Div([dcc.Location(id="url"), navbar, content])
 
 # 팀별 순위변화 읽는 예시: standing.xs('한화', level = 1)
@@ -100,7 +100,7 @@ def render_page_content(pathname):
             ]),
             dcc.Graph(id = 'future-fig'),
             html.H2("다음 경기 요약"),
-            html.H3(coming['date'].iloc[0].isoformat(), style = {'text-align': 'center'}),
+            html.H3(coming['date'].iloc[0].isoformat(), style={'text-align':'center'})
         ] + coming_games)
     elif pathname == "/standing":
         return html.Div([
