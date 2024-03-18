@@ -125,14 +125,14 @@ for idx in coming.index:
         data = coming_li.loc[[(coming.loc[idx, 'date'], coming.loc[idx, 'away']), (coming.loc[idx, 'date'], coming.loc[idx, 'home'])]].astype(float).round(3).T.values,
         columns = [coming.loc[idx, 'away'], coming.loc[idx, 'home']]
     )
-    game_df['VS'] = ['우승 중요도', '승리 시 우승 확률', '패배 시 우승 확률', '포스트시즌 진출 중요도', '승리 시 포스트시즌 진출 확률', '패배 시 포스트시즌 진출 확률']
+    game_df['VS'] = ['우승 중요도', '승리 시 우승 확률', '패배 시 우승 확률', '포스트시즌 진출 중요도', '승리 시 포스트시즌 확률', '패배 시 포스트시즌 확률']
     game_df = game_df[[coming.loc[idx, 'away'], 'VS', coming.loc[idx, 'home']]]
     coming_games.append(dash_table.DataTable(
         game_df.to_dict('records'),
         [{'name': i, 'id': i} for i in game_df.columns.tolist()],
         style_header = {'text-align': 'center', 'padding': '3px', 'fontWeight': 'bold'},
         style_data = {'text-align': 'center', 'padding': '3px'},
-        style_table={'margin-left': 'auto', 'margin-right': 'auto', 'margin-bottom': '10px', 'width': '70%'},
+        style_table={'margin-left': 'auto', 'margin-right': 'auto', 'margin-bottom': '10px', 'width': '100%', 'max-width': '370px'},
         style_cell_conditional = [
             {
                 'if': {'column_id': team},
