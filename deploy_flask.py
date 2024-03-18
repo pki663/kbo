@@ -52,7 +52,7 @@ navbar = dbc.NavbarSimple(
     }
 )
 
-content = html.Div(id='page-content', style = {"margin-left": "0.5rem", "margin-right": "0.5rem", "padding-top": "10px"})
+content = html.Div(id='page-content', style = {"margin-left": "auto", "margin-right": "auto", "padding-top": "10px", 'padding-left': '0.5rem', 'padding-right': '0.5rem'})
 app.layout = html.Div([dcc.Location(id="url"), navbar, content])
 
 # 팀별 순위변화 읽는 예시: standing.xs('한화', level = 1)
@@ -64,6 +64,7 @@ standing = pd.read_pickle('data/2023/standing.pkl')
 coming = pd.read_pickle('data/2023/comingup_games.pkl')
 
 days_list = sorted(uniform_result.index.get_level_values(0).drop_duplicates())
+today = uniform_result.index.get_level_values(level = 0).max()
 
 with open('fig/standing.pkl', 'rb') as fr:
     today_standing = pickle.load(fr)
@@ -80,7 +81,7 @@ future_postseason_fig = read_json(file = 'fig/future_postseason_fig.json', engin
 def render_page_content(pathname):
     if pathname == "/":
         return html.Div([
-            html.H2("2023년 KBO 리그 페넌트레이스 최종결과"),
+            html.H2(today.strftime('%m월 %d일') + " 경기 종료 후 상황"),
             html.Hr(),
             dcc.Tabs(id = 'cwp-psp', value = 'cwp', children = [
                 dcc.Tab(label = '우승 확률', value = 'cwp'),
@@ -91,7 +92,7 @@ def render_page_content(pathname):
         ])
     elif pathname == "/comingup":
         return html.Div([
-            html.H2("다음 경기 예고 (테스트 버전)"),
+            html.H2("다음 경기 예고"),
             html.Hr(),
             dcc.Tabs(id = 'cwli-psli', value = 'cwli', children = [
                 dcc.Tab(label = '우승 확률 변화', value = 'cwli'),
@@ -121,7 +122,7 @@ def render_page_content(pathname):
                 dcc.Tab(label = '다음경기 분석', value = 'future'),
                 dcc.Tab(label = '순위 분석', value = 'standing')
             ]),
-            html.Div(id = 'tutorial-contents', style = {"margin-left": "0.5rem", "margin-right": "0.5rem", 'margin-top': '0.5rem', 'width': '100%'})
+            html.Div(id = 'tutorial-contents', style = {'width': '100%'})
         ])
     # If the user tries to reach a different page, return a 404 message
     return html.Div(
