@@ -4,8 +4,9 @@
 name: KBO scrapper - Update data
 
 on:
-  schedule:
-    - cron: '0 16 * * *' # 매일 AM 1시에 실행
+#  schedule:
+#    - cron: '0 16 * * *' # 매일 AM 1시에 실행
+  workflow_dispatch
 
 permissions: write-all
 
