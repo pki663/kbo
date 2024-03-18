@@ -4,7 +4,8 @@
 name: KBO scrapper - Update data
 
 on:
-  workflow_dispatch
+  schedule:
+    - cron: '0 16 * * *' # 매일 AM 1시에 실행
 
 permissions: write-all
 
@@ -26,14 +27,14 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: KBO Scraper with python
       run: |
-        python "kbo_scrapper.py"; fi
+        python "kbo_scrapper.py"
     - name: Commits - scrap
       run: |
         git config --local user.email "sooo@novelmaterial@gmail.com"
         git config --local user.name "Sooo Kim" # 커밋에 포함될 이름
         git add ./data
         if [[ ! `git status --porcelain` ]]; then exit 0; fi
-        git commit -m "Auto - Update games data" # 커밋 메세지
+        git commit -m "Auto - Update games data"
     - name: Push - scrap
       uses: ad-m/github-push-action@master
       with:
@@ -41,14 +42,24 @@ jobs:
         github_token: $
     - name: League simulation with python
       run: |
-        python "cwp_simulator.py" -p 4 --game_path 'data/completed_games.pkl' --probability_path 'data/uniform_probability.pkl' --standing_path 'data/standing.pkl' --comingup_path 'data/comingup_games.pkl' --cli_path 'data/li.pkl' --probability_output 'data/uniform_probability.pkl' --standing_output 'data/standing.pkl' --cli_output 'data/li.pkl'
+        python "cwp_simulator.py" -p 8 --game_path 'data/completed_games.pkl' --probability_path 'data/uniform_probability.pkl' --standing_path 'data/standing.pkl' --comingup_path 'data/comingup_games.pkl' --cli_path 'data/li.pkl' --probability_output 'data/uniform_probability.pkl' --standing_output 'data/standing.pkl' --cli_output 'data/li.pkl'
+        python "cwp_simulator.py" -p 8 --game_path 'data/completed_games.pkl' --probability_path 'data/log5_probability.pkl' --standing_path 'data/standing.pkl' --probability_output 'data/log5_probability.pkl' --standing_output 'data/standing.pkl' --winratio 'data/win_setting/2023_log5.pkl'
+        python "cwp_simulator.py" -p 8 --game_path 'data/completed_games.pkl' --probability_path 'data/opponent_probability.pkl' --standing_path 'data/standing.pkl' --probability_output 'data/opponent_probability.pkl' --standing_output 'data/standing.pkl' --winratio 'data/win_setting/2023_opponent_ratio.pkl'
     - name: Commits - simulation
       run: |
         git config --local user.email "sooo@novelmaterial@gmail.com"
         git config --local user.name "Sooo Kim" # 커밋에 포함될 이름
+        git add ./data
+        if [[ ! `git status --porcelain` ]]; then exit 0; fi
+        git commit -m "Auto - Simulation"
+    - name: Preprocess for deployment
+      run: |
+        python "preprocess_deploy.py"
+        git config --local user.email "sooo@novelmaterial@gmail.com"
+        git config --local user.name "Sooo Kim" # 커밋에 포함될 이름
         git add ./fig
         if [[ ! `git status --porcelain` ]]; then exit 0; fi
-        git commit -m "Auto - Simulation" # 커밋 메세지
+        git commit -m "Auto - Preprocess"
     - name: Push - simulation
       uses: ad-m/github-push-action@master
       with:

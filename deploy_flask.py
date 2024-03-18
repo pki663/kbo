@@ -57,11 +57,12 @@ app.layout = html.Div([dcc.Location(id="url"), navbar, content])
 
 # 팀별 순위변화 읽는 예시: standing.xs('한화', level = 1)
 # 날짜별 순위표 읽는 예시: standing.loc[date(2023, 4, 15): date(2023, 4, 25)]
-uniform_result = pd.read_pickle('data/2023/uniform_probability.pkl')
-log5_result = pd.read_pickle('data/2023/log5_probability.pkl')
-coming_li = pd.read_pickle('data/2023/li.pkl')
-standing = pd.read_pickle('data/2023/standing.pkl')
-coming = pd.read_pickle('data/2023/comingup_games.pkl')
+uniform_result = pd.read_pickle('data/uniform_probability.pkl')
+log5_result = pd.read_pickle('data/log5_probability.pkl')
+opponent_result = pd.read_pickle('data/opponent_probability.pkl')
+coming_li = pd.read_pickle('data/li.pkl')
+standing = pd.read_pickle('data/standing.pkl')
+coming = pd.read_pickle('data/comingup_games.pkl')
 
 days_list = sorted(uniform_result.index.get_level_values(0).drop_duplicates())
 
@@ -73,6 +74,10 @@ with open('fig/comingup.pkl', 'rb') as fr:
 
 now_championship_fig = read_json(file = 'fig/now_championship_fig.json', engine = 'json')
 now_postseason_fig = read_json(file = 'fig/now_postseason_fig.json', engine = 'json')
+log5_championship_fig = read_json(file = 'fig/log5_championship_fig.json', engine = 'json')
+log5_postseason_fig = read_json(file = 'fig/log5_postseason_fig.json', engine = 'json')
+opponent_championship_fig = read_json(file = 'fig/opponent_championship_fig.json', engine = 'json')
+opponent_postseason_fig = read_json(file = 'fig/opponent_postseason_fig.json', engine = 'json')
 future_championship_fig = read_json(file = 'fig/future_championship_fig.json', engine = 'json')
 future_postseason_fig = read_json(file = 'fig/future_postseason_fig.json', engine = 'json')
 
@@ -86,6 +91,7 @@ def render_page_content(pathname):
                 dcc.Tab(label = '우승 확률', value = 'cwp'),
                 dcc.Tab(label = '포스트시즌 진출 확률', value = 'psp')
             ]),
+            dcc.RadioItems(id = 'now-ratio-type', options = [{'label': '승률을 0.5로 통일', 'value': 'uniform'}, {'label': '작년기반 Log5 확률 적용', 'value': 'log5'}, {'label': '작년 상대전적 적용', 'value': 'opponent'}], value = 'uniform'),
             dcc.Graph(id = 'now-fig'),
             today_standing
         ])
@@ -105,10 +111,12 @@ def render_page_content(pathname):
         return html.Div([
             html.H3("팀 별 시즌 중 순위 확률 변화 분석"),
             dcc.Dropdown(list(team_color.keys()), '', id = 'team-dropdown', placeholder='분석할 팀을 선택해주세요', style = {"margin-left": "0.5rem", 'width': '80%', 'border-width': '2px', 'border-color': 'gray'}),
+            dcc.RadioItems(id = 'team-ratio-type', options = [{'label': '승률을 0.5로 통일', 'value': 'uniform'}, {'label': '작년기반 Log5 확률 적용', 'value': 'log5'}, {'label': '작년 상대전적 적용', 'value': 'opponent'}], value = 'uniform'),
             dcc.Graph(id = 'team-standing'),
             html.Hr(),
             html.H3("날짜별 순위별 확률 분석"),
-            dcc.DatePickerSingle(id = 'calender', min_date_allowed=uniform_result.index.get_level_values(level = 0).min(), max_date_allowed=uniform_result.index.get_level_values(level = 0).max(), disabled_days=[x for x in pd.date_range(start = uniform_result.index.get_level_values(level = 0).min(), end = uniform_result.index.get_level_values(level = 0).max()).date if x not in uniform_result.index.get_level_values(level = 0)], placeholder='날짜 선택', display_format='YYYY-MM-DD', style = {"margin-left": "1rem", 'border' : '2px solid gray'}),
+            dcc.DatePickerSingle(id = 'calender', min_date_allowed=uniform_result.index.get_level_values(level = 0).min(), max_date_allowed=uniform_result.index.get_level_values(level = 0).max(), disabled_days=[x for x in pd.date_range(start = uniform_result.index.get_level_values(level = 0).min(), end = uniform_result.index.get_level_values(level = 0).max()).date if x not in uniform_result.index.get_level_values(level = 0)], placeholder='날짜 선택', display_format='YYYY-MM-DD', style = {"margin-left": "1rem", 'border' : '2px solid gray'}, date = uniform_result.index.get_level_values(level = 0).max()),
+            dcc.RadioItems(id = 'date-ratio-type', options = [{'label': '승률을 0.5로 통일', 'value': 'uniform'}, {'label': '작년기반 Log5 확률 적용', 'value': 'log5'}, {'label': '작년 상대전적 적용', 'value': 'opponent'}], value = 'uniform'),
             dcc.Graph(id = 'date-team'),
             dcc.Graph(id = 'date-standing')
         ])
@@ -133,12 +141,22 @@ def render_page_content(pathname):
         className="p-3 bg-light rounded-3",
     )
 
-@app.callback(Output("now-fig", 'figure'), Input("cwp-psp", 'value'))
-def render_now_figure(fig_selection):
+@app.callback(Output("now-fig", 'figure'), [Input("cwp-psp", 'value'), Input("now-ratio-type", 'value')])
+def render_now_figure(fig_selection, ratio_selection):
     if fig_selection == 'cwp':
-        return now_championship_fig
+        if ratio_selection == 'uniform':
+            return now_championship_fig
+        elif ratio_selection == 'log5':
+            return log5_championship_fig
+        elif ratio_selection == 'opponent':
+            return opponent_championship_fig
     elif fig_selection == 'psp':
-        return now_postseason_fig
+        if ratio_selection == 'uniform':
+            return now_postseason_fig
+        elif ratio_selection == 'log5':
+            return log5_postseason_fig
+        elif ratio_selection == 'opponent':
+            return opponent_postseason_fig
 
 @app.callback(Output("future-fig", 'figure'), Input("cwli-psli", 'value'))
 def render_future_figure(fig_selection):
@@ -147,11 +165,18 @@ def render_future_figure(fig_selection):
     elif fig_selection == 'psli':
         return future_postseason_fig
 
-@app.callback(Output("team-standing", 'figure'), Input("team-dropdown", 'value'))
-def render_team_figure(team_selection):
+@app.callback(Output("team-standing", 'figure'), [Input("team-dropdown", 'value'), Input('team-ratio-type', 'value')])
+def render_team_figure(team_selection, ratio_selection):
     if not team_selection:
         return go.Figure()
-    team_result = uniform_result.xs(team_selection, level = 1)
+    if ratio_selection == 'uniform':
+        team_result = uniform_result.xs(team_selection, level = 1)
+    elif ratio_selection == 'log5':
+        team_result = log5_result.xs(team_selection, level = 1)
+    elif ratio_selection == 'opponent':
+        team_result = opponent_result.xs(team_selection, level = 1)
+    else:
+        return go.Figure()
     fig = go.Figure(data = [
         go.Bar(name = str(rank) + '위', x = team_result.index, y = team_result[rank])
         for rank in range(10, 0, -1)
@@ -161,11 +186,18 @@ def render_team_figure(team_selection):
     fig.update_yaxes(title_text = '해당 순위 확률', range = [0, 1], fixedrange = True)
     return fig
 
-@app.callback(Output("date-team", 'figure'), Input("calender", 'date'))
-def render_dateteam_figure(date_selection):
+@app.callback(Output("date-team", 'figure'), [Input("calender", 'date'), Input('date-ratio-type', 'value')])
+def render_dateteam_figure(date_selection, ratio_selection):
     if pd.isna(date_selection):
         return go.Figure()
-    date_result = uniform_result.loc[date.fromisoformat(date_selection)]
+    if ratio_selection == 'uniform':
+        date_result = uniform_result.loc[date.fromisoformat(date_selection)]
+    elif ratio_selection == 'log5':
+        date_result = log5_result.loc[date.fromisoformat(date_selection)]
+    elif ratio_selection == 'opponent':
+        date_result = opponent_result.loc[date.fromisoformat(date_selection)]
+    else:
+        return go.Figure()
     fig = go.Figure(data = [
         go.Bar(name = str(rank) + '위', x = date_result.index, y = date_result[rank])
         for rank in range(10, 0, -1)

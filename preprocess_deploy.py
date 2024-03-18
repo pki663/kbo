@@ -19,11 +19,12 @@ team_color = {
     '키움':['#570514', '#B07F4A']
 }
 
-uniform_result = pd.read_pickle('data/2023/uniform_probability.pkl')
-log5_result = pd.read_pickle('data/2023/log5_probability.pkl')
-coming_li = pd.read_pickle('data/2023/li.pkl')
-standing = pd.read_pickle('data/2023/standing.pkl')
-coming = pd.read_pickle('data/2023/comingup_games.pkl')
+uniform_result = pd.read_pickle('data/uniform_probability.pkl')
+log5_result = pd.read_pickle('data/log5_probability.pkl')
+opponent_result = pd.read_pickle('data/opponent_probability.pkl')
+coming_li = pd.read_pickle('data/li.pkl')
+standing = pd.read_pickle('data/standing.pkl')
+coming = pd.read_pickle('data/comingup_games.pkl')
 
 days_list = sorted(uniform_result.index.get_level_values(0).drop_duplicates())
 
@@ -38,6 +39,30 @@ now_postseason_fig.update_layout(title_text = 'KBO 팀별 포스트시즌 진출
 for team, color in team_color.items():
     now_championship_fig.add_trace(go.Scatter(x=days_list, y = uniform_result.xs(team, level = 1)[1], name = team, mode = 'lines+markers', line = {'color': color[0]}, marker = {'color': color[1], 'size': 3}))
     now_postseason_fig.add_trace(go.Scatter(x=days_list, y = uniform_result.xs(team, level = 1).loc[:, 1:5].sum(axis = 1), name = team, mode = 'lines+markers', line = {'color': color[0]}, marker = {'color': color[1], 'size': 3}))
+
+log5_championship_fig = go.Figure(layout = go.Layout(hovermode='x'))
+log5_postseason_fig = go.Figure(layout = go.Layout(hovermode='x'))
+log5_championship_fig.update_xaxes(title_text = '날짜', range = [days_list[0], days_list[-1]])
+log5_postseason_fig.update_xaxes(title_text = '날짜', range = [days_list[0], days_list[-1]])
+log5_championship_fig.update_yaxes(title_text = '확률', range = [0, 1], fixedrange = True)
+log5_postseason_fig.update_yaxes(title_text = '확률', range = [0, 1], fixedrange = True)
+log5_championship_fig.update_layout(title_text = 'KBO 팀별 우승확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50)
+log5_postseason_fig.update_layout(title_text = 'KBO 팀별 포스트시즌 진출확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50)
+for team, color in team_color.items():
+    log5_championship_fig.add_trace(go.Scatter(x=days_list, y = log5_result.xs(team, level = 1)[1], name = team, mode = 'lines+markers', line = {'color': color[0]}, marker = {'color': color[1], 'size': 3}))
+    log5_postseason_fig.add_trace(go.Scatter(x=days_list, y = log5_result.xs(team, level = 1).loc[:, 1:5].sum(axis = 1), name = team, mode = 'lines+markers', line = {'color': color[0]}, marker = {'color': color[1], 'size': 3}))
+
+opponent_championship_fig = go.Figure(layout = go.Layout(hovermode='x'))
+opponent_postseason_fig = go.Figure(layout = go.Layout(hovermode='x'))
+opponent_championship_fig.update_xaxes(title_text = '날짜', range = [days_list[0], days_list[-1]])
+opponent_postseason_fig.update_xaxes(title_text = '날짜', range = [days_list[0], days_list[-1]])
+opponent_championship_fig.update_yaxes(title_text = '확률', range = [0, 1], fixedrange = True)
+opponent_postseason_fig.update_yaxes(title_text = '확률', range = [0, 1], fixedrange = True)
+opponent_championship_fig.update_layout(title_text = 'KBO 팀별 우승확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50)
+opponent_postseason_fig.update_layout(title_text = 'KBO 팀별 포스트시즌 진출확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50)
+for team, color in team_color.items():
+    opponent_championship_fig.add_trace(go.Scatter(x=days_list, y = opponent_result.xs(team, level = 1)[1], name = team, mode = 'lines+markers', line = {'color': color[0]}, marker = {'color': color[1], 'size': 3}))
+    opponent_postseason_fig.add_trace(go.Scatter(x=days_list, y = opponent_result.xs(team, level = 1).loc[:, 1:5].sum(axis = 1), name = team, mode = 'lines+markers', line = {'color': color[0]}, marker = {'color': color[1], 'size': 3}))
 
 last_result = uniform_result.loc[:max([x for x in days_list if x < coming_li.index.get_level_values(0).max()])]
 future_championship_fig = go.Figure(layout = go.Layout(hovermode='x'))
@@ -119,6 +144,10 @@ for idx in coming.index:
 
 write_json(now_championship_fig, file = 'fig/now_championship_fig.json', engine = 'json')
 write_json(now_postseason_fig, file = 'fig/now_postseason_fig.json', engine = 'json')
+write_json(log5_championship_fig, file = 'fig/log5_championship_fig.json', engine = 'json')
+write_json(log5_postseason_fig, file = 'fig/log5_postseason_fig.json', engine = 'json')
+write_json(opponent_championship_fig, file = 'fig/opponent_championship_fig.json', engine = 'json')
+write_json(opponent_postseason_fig, file = 'fig/opponent_postseason_fig.json', engine = 'json')
 write_json(future_championship_fig, file = 'fig/future_championship_fig.json', engine = 'json')
 write_json(future_postseason_fig, file = 'fig/future_postseason_fig.json', engine = 'json')
 with open('fig/standing.pkl', 'wb') as fw:
