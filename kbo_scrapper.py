@@ -8,6 +8,10 @@ import time
 import sys
 
 #%%
+if pd.read_pickle('data/comingup_games.pkl')['date'].iloc[0] > date.today():
+    sys.exit()
+
+#%%
 game_df = pd.read_pickle('data/completed_games.pkl')
 #%%
 if 'Linux' == platform.system():
@@ -26,7 +30,6 @@ else:
 
 driver.implicitly_wait(3)
 action = webdriver.ActionChains(driver)
-
 # %%
 driver.get('https://www.koreabaseball.com/Schedule/GameCenter/Main.aspx')
 
@@ -34,8 +37,6 @@ driver.get('https://www.koreabaseball.com/Schedule/GameCenter/Main.aspx')
 driver.execute_script("getGameDate('{}');".format(date.today().strftime('%Y%m%d')))
 time.sleep(0.3)
 coming_up = pd.DataFrame([[date.fromisoformat(x.get_attribute('g_dt')), x.get_attribute('away_nm'), x.get_attribute('home_nm')] for x in driver.find_elements(By.XPATH, '//li[@class="game-cont"]')], columns = ['date', 'away', 'home'])
-if (coming_up.values == pd.read_pickle('data/comingup_games.pkl').values).min().min():
-    sys.exit()
 coming_up.to_pickle('data/comingup_games.pkl')
 
 #%%
