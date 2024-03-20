@@ -69,7 +69,7 @@ for team, color in team_color.items():
         x=last_result.index.get_level_values(0).drop_duplicates(),
         y = last_result.xs(team, level = 1).loc[:, 1:5].sum(axis = 1),
         name = team, mode = 'lines+markers',
-        line = {'color': color[0]}, marker = {'color': color[1], 'size': 3}, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
+        line = {'color': color[0], 'width' : 5}, marker = {'color': color[1], 'size': 4}, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
     if team in coming_li.loc[coming_li.index.get_level_values(0).max()].index:
         future_postseason_fig.add_trace(go.Scatter(
             x=[last_result.index.get_level_values(0).max(), coming_li.index.get_level_values(0).max()],
