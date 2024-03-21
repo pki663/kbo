@@ -1,7 +1,7 @@
 #%%
 import os
 import sys
-from scipy.stats import bernoulli
+from scipy.stats import binom
 import pandas as pd
 from datetime import date, timedelta
 import multiprocessing
@@ -51,7 +51,7 @@ def season_simulation(simulation_games, win_table, draw_table, win_ratio, num_at
         simulation_wins = initial_table.copy()
         for idx in simulation_games.index:
             for col in simulation_games.columns[simulation_games.index.get_loc(idx)+1:]:
-                simulation_wins.loc[idx, col] = sum(bernoulli.rvs(size=simulation_games.loc[idx,col], p=win_ratio.loc[idx, col]).astype(bool))
+                simulation_wins.loc[idx, col] = binom.rvs(n=simulation_games.loc[idx,col], p=win_ratio.loc[idx, col], size = 1)[0]
                 simulation_wins.loc[col, idx] = simulation_games.loc[idx,col] - simulation_wins.loc[idx, col]
         simulation_standing = ((simulation_wins + win_table).sum(axis = 1) / ((16 - draw_table).sum(axis = 1) - 16)).rank(method = 'min', ascending=False).astype(int)
         for idx in simulation_standing.index:
