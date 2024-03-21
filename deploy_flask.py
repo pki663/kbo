@@ -158,7 +158,8 @@ def render_team_figure(team_selection):
         for rank in range(10, 0, -1)
     ], layout = go.Layout(title = go.layout.Title(text = team_selection + ' 시즌 중 각 순위별 확률 변동'),
         hovermode = 'x'))
-    fig.update_layout(barmode = 'stack', margin_l=10, margin_r=10, margin_b=10, margin_t=40)
+    fig.update_layout(barmode = 'stack', margin_l=10, margin_r=10, margin_b=10, margin_t=40, dragmode = 'pan')
+    fig.update_xaxes(range = [max(days_list[0], days_list[-1] - timedelta(days = 15)), days_list[-1]], minallowed = days_list[0], maxallowed = days_list[-1])
     fig.update_yaxes(title_text = '해당 순위 확률', range = [0, 1], fixedrange = True)
     return fig
 
