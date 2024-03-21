@@ -30,39 +30,16 @@ days_list = sorted(uniform_result.index.get_level_values(0).drop_duplicates())
 
 now_championship_fig = go.Figure(layout = go.Layout(hovermode='x'))
 now_postseason_fig = go.Figure(layout = go.Layout(hovermode='x'))
-now_championship_fig.update_xaxes(title_text = '날짜', range = [days_list[0], days_list[-1]])
-now_postseason_fig.update_xaxes(title_text = '날짜', range = [days_list[0], days_list[-1]])
+# if want rangeslider, add rangeslider = {'range' : [days_list[0], days_list[-1]]}
+now_championship_fig.update_xaxes(title_text = '날짜', range = [max(days_list[0], days_list[-1] - timedelta(days = 15)), days_list[-1]], minallowed = days_list[0], maxallowed = days_list[-1])
+now_postseason_fig.update_xaxes(title_text = '날짜', range = [max(days_list[0], days_list[-1] - timedelta(days = 15)), days_list[-1]], minallowed = days_list[0], maxallowed = days_list[-1])
 now_championship_fig.update_yaxes(title_text = '확률', range = [0, 1], fixedrange = True)
 now_postseason_fig.update_yaxes(title_text = '확률', range = [0, 1], fixedrange = True)
-now_championship_fig.update_layout(title_text = '팀 별 우승확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50)
-now_postseason_fig.update_layout(title_text = '팀 별 포스트시즌 진출확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50)
+now_championship_fig.update_layout(title_text = 'KBO 팀별 우승확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50, dragmode = 'pan')
+now_postseason_fig.update_layout(title_text = 'KBO 팀별 포스트시즌 진출확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50, dragmode = 'pan')
 for team, color in team_color.items():
-    now_championship_fig.add_trace(go.Scatter(x=days_list, y = uniform_result.xs(team, level = 1)[1], name = team, mode = 'lines+markers', line = {'color': color[0], 'width' : 5}, marker = {'color': color[1], 'size': 4}, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
-    now_postseason_fig.add_trace(go.Scatter(x=days_list, y = uniform_result.xs(team, level = 1).loc[:, 1:5].sum(axis = 1), name = team, mode = 'lines+markers', line = {'color': color[0], 'width' : 5}, marker = {'color': color[1], 'size': 4}, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
-
-log5_championship_fig = go.Figure(layout = go.Layout(hovermode='x'))
-log5_postseason_fig = go.Figure(layout = go.Layout(hovermode='x'))
-log5_championship_fig.update_xaxes(title_text = '날짜', range = [days_list[0], days_list[-1]])
-log5_postseason_fig.update_xaxes(title_text = '날짜', range = [days_list[0], days_list[-1]])
-log5_championship_fig.update_yaxes(title_text = '확률', range = [0, 1], fixedrange = True)
-log5_postseason_fig.update_yaxes(title_text = '확률', range = [0, 1], fixedrange = True)
-log5_championship_fig.update_layout(title_text = '팀 별 우승확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50)
-log5_postseason_fig.update_layout(title_text = '팀 별 포스트시즌 진출확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50)
-for team, color in team_color.items():
-    log5_championship_fig.add_trace(go.Scatter(x=days_list, y = log5_result.xs(team, level = 1)[1], name = team, mode = 'lines+markers', line = {'color': color[0]}, marker = {'color': color[1], 'size': 3}))
-    log5_postseason_fig.add_trace(go.Scatter(x=days_list, y = log5_result.xs(team, level = 1).loc[:, 1:5].sum(axis = 1), name = team, mode = 'lines+markers', line = {'color': color[0]}, marker = {'color': color[1], 'size': 3}))
-
-opponent_championship_fig = go.Figure(layout = go.Layout(hovermode='x'))
-opponent_postseason_fig = go.Figure(layout = go.Layout(hovermode='x'))
-opponent_championship_fig.update_xaxes(title_text = '날짜', range = [days_list[0], days_list[-1]])
-opponent_postseason_fig.update_xaxes(title_text = '날짜', range = [days_list[0], days_list[-1]])
-opponent_championship_fig.update_yaxes(title_text = '확률', range = [0, 1], fixedrange = True)
-opponent_postseason_fig.update_yaxes(title_text = '확률', range = [0, 1], fixedrange = True)
-opponent_championship_fig.update_layout(title_text = '팀 별 우승확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50)
-opponent_postseason_fig.update_layout(title_text = '팀 별 포스트시즌 진출확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50)
-for team, color in team_color.items():
-    opponent_championship_fig.add_trace(go.Scatter(x=days_list, y = opponent_result.xs(team, level = 1)[1], name = team, mode = 'lines+markers', line = {'color': color[0]}, marker = {'color': color[1], 'size': 3}))
-    opponent_postseason_fig.add_trace(go.Scatter(x=days_list, y = opponent_result.xs(team, level = 1).loc[:, 1:5].sum(axis = 1), name = team, mode = 'lines+markers', line = {'color': color[0]}, marker = {'color': color[1], 'size': 3}))
+    now_championship_fig.add_trace(go.Scatter(x=days_list, y = uniform_result.xs(team, level = 1)[1], name = team, mode = 'lines+markers', line = {'color': color[0], 'width' : 3}, marker = {'color': color[1], 'size': 3}, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
+    now_postseason_fig.add_trace(go.Scatter(x=days_list, y = uniform_result.xs(team, level = 1).loc[:, 1:5].sum(axis = 1), name = team, mode = 'lines+markers', line = {'color': color[0], 'width' : 3}, marker = {'color': color[1], 'size': 3}, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
 
 last_result = uniform_result.loc[:max([x for x in days_list if x < coming_li.index.get_level_values(0).max()])]
 future_championship_fig = go.Figure(layout = go.Layout(hovermode='x'))
@@ -79,31 +56,31 @@ for team, color in team_color.items():
         x=last_result.index.get_level_values(0).drop_duplicates(),
         y = last_result.xs(team, level = 1)[1],
         name = team, mode = 'lines+markers',
-        line = {'color': color[0], 'width' : 5}, marker = {'color': color[1], 'size': 4}, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
+        line = {'color': color[0], 'width' : 3}, marker = {'color': color[1], 'size': 3}, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
     if team in coming_li.loc[coming_li.index.get_level_values(0).max()].index:
         future_championship_fig.add_trace(go.Scatter(
             x=[last_result.index.get_level_values(0).max(), coming_li.index.get_level_values(0).max()],
             y = [last_result.loc[(last_result.index.get_level_values(0).max(), team), 1], coming_li.xs(team, level = 1)['cWin'].iloc[-1]],
-            mode = 'lines+text', line = {'color': color[0], 'width' : 5, 'dash': 'dash'}, marker = {'color': color[1], 'size': 4}, showlegend=False, hoverinfo='skip'))
+            mode = 'lines+text', line = {'color': color[0], 'width' : 3, 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip'))
         future_championship_fig.add_trace(go.Scatter(
             x=[last_result.index.get_level_values(0).max(), coming_li.index.get_level_values(0).max()],
             y = [last_result.loc[(last_result.index.get_level_values(0).max(), team), 1], coming_li.xs(team, level = 1)['cLose'].iloc[-1]],
-            mode = 'lines+text', line = {'color': color[0], 'width' : 5, 'dash': 'dash'}, marker = {'color': color[1], 'size': 4}, showlegend=False, hoverinfo='skip'))
+            mode = 'lines+text', line = {'color': color[0], 'width' : 3, 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip'))
 
     future_postseason_fig.add_trace(go.Scatter(
         x=last_result.index.get_level_values(0).drop_duplicates(),
         y = last_result.xs(team, level = 1).loc[:, 1:5].sum(axis = 1),
         name = team, mode = 'lines+markers',
-        line = {'color': color[0]}, marker = {'color': color[1], 'size': 3}, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
+        line = {'color': color[0], 'width' : 3}, marker = {'color': color[1], 'size': 3}, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
     if team in coming_li.loc[coming_li.index.get_level_values(0).max()].index:
         future_postseason_fig.add_trace(go.Scatter(
             x=[last_result.index.get_level_values(0).max(), coming_li.index.get_level_values(0).max()],
             y = [last_result.loc[(last_result.index.get_level_values(0).max(), team), 1:5].sum(), coming_li.xs(team, level = 1)['pWin'].iloc[-1]],
-            mode = 'lines+text', line = {'color': color[0], 'width' : 5, 'dash': 'dash'}, marker = {'color': color[1], 'size': 4}, showlegend=False, hoverinfo='skip'))
+            mode = 'lines+text', line = {'color': color[0], 'width' : 3, 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip'))
         future_postseason_fig.add_trace(go.Scatter(
             x=[last_result.index.get_level_values(0).max(), coming_li.index.get_level_values(0).max()],
             y = [last_result.loc[(last_result.index.get_level_values(0).max(), team), 1:5].sum(), coming_li.xs(team, level = 1)['pLose'].iloc[-1]],
-            mode = 'lines+text', line = {'color': color[0], 'width' : 5, 'dash': 'dash'}, marker = {'color': color[1], 'size': 4}, showlegend=False, hoverinfo='skip'))
+            mode = 'lines+text', line = {'color': color[0], 'width' : 3, 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip'))
 
 today_standing = standing.loc[standing.index.get_level_values(0).max()].reset_index(names = '팀명')
 today_standing = pd.concat([today_standing['승률'].rank(method = 'min', ascending=False).astype(int).rename('순위'), today_standing], axis = 1)
