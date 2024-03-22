@@ -116,8 +116,7 @@ def render_page_content(pathname):
             dcc.Graph(id = 'team-standing'),
             html.Hr(),
             html.H3("날짜별 순위별 확률 분석"),
-            dcc.DatePickerSingle(id = 'calender', min_date_allowed=uniform_result.index.get_level_values(level = 0).min(), max_date_allowed=uniform_result.index.get_level_values(level = 0).max(), disabled_days=[x for x in pd.date_range(start = uniform_result.index.get_level_values(level = 0).min(), end = uniform_result.index.get_level_values(level = 0).max()).date if x not in uniform_result.index.get_level_values(level = 0)], placeholder='날짜 선택', display_format='YYYY-MM-DD', style = {"margin-left": "1rem", 'border' : '2px solid gray'}, date = uniform_result.index.get_level_values(level = 0).max()),
-            dcc.RadioItems(id = 'date-ratio-type', options = [{'label': '승률을 0.5로 통일', 'value': 'uniform'}, {'label': '작년기반 Log5 확률 적용', 'value': 'log5'}, {'label': '작년 상대전적 적용', 'value': 'opponent'}], value = 'uniform'),
+            dcc.DatePickerSingle(id = 'calender', min_date_allowed=uniform_result.index.get_level_values(level = 0).min(), max_date_allowed=uniform_result.index.get_level_values(level = 0).max(), disabled_days=[x for x in pd.date_range(start = uniform_result.index.get_level_values(level = 0).min(), end = uniform_result.index.get_level_values(level = 0).max()).date if x not in uniform_result.index.get_level_values(level = 0)], placeholder='날짜 선택', display_format='YYYY-MM-DD', style = {"margin-left": "1rem", 'border' : '2px solid gray'}, initial_visible_month = uniform_result.index.get_level_values(level = 0).max()),
             dcc.Graph(id = 'date-team'),
             dcc.Graph(id = 'date-standing')
         ])
