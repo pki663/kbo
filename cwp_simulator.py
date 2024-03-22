@@ -51,33 +51,33 @@ def season_simulation(simulation_games, win_table, draw_table, win_ratio, num_at
         simulation_wins = initial_table.copy()
         for idx in simulation_games.index:
             for col in simulation_games.columns[simulation_games.index.get_loc(idx)+1:]:
-                simulation_wins.loc[idx, col] = binom.rvs(n=simulation_games.loc[idx,col], p=win_ratio.loc[idx, col], size = 1)[0]
-                simulation_wins.loc[col, idx] = simulation_games.loc[idx,col] - simulation_wins.loc[idx, col]
+                simulation_wins.at[idx, col] = binom.rvs(n=simulation_games.at[idx,col], p=win_ratio.at[idx, col], size = 1)[0]
+                simulation_wins.at[col, idx] = simulation_games.at[idx,col] - simulation_wins.at[idx, col]
         simulation_standing = ((simulation_wins + win_table).sum(axis = 1) / ((16 - draw_table).sum(axis = 1) - 16)).rank(method = 'min', ascending=False).astype(int)
         for idx in simulation_standing.index:
-            simulation_result.loc[idx, simulation_standing[idx]] += 1
+            simulation_result.at[idx, simulation_standing[idx]] += 1
     return simulation_result
 
 # %%
 if __name__ == '__main__':
-    for cwp_date in tqdm(sorted([x for x in games_df['date'].drop_duplicates() if x not in set([x[0] for x in standing_probability.index])])):
+    for cwp_date in tqdm(sorted([x for x in games_df['date'].drop_duplicates() if x not in set([x[0] for x in standing_probability.index])]), desc='cWP calculation'):
         # 현재 전적 산출
         win_table = initial_table.copy(deep=True)
         draw_table = initial_table.copy(deep=True)
-        for idx in games_df.loc[games_df['date'] <= cwp_date].index:
-            if games_df.loc[idx, 'win'] == 'draw':
-                draw_table.loc[games_df.loc[idx, 'home'], games_df.loc[idx, 'away']] += 1
-                draw_table.loc[games_df.loc[idx, 'away'], games_df.loc[idx, 'home']] += 1
-            else:
-                opposite = games_df.loc[idx, 'home'] if games_df.loc[idx, 'home'] != games_df.loc[idx, 'win'] else games_df.loc[idx, 'away']
-                win_table.loc[games_df.loc[idx, 'win'], opposite] += 1
+        for k, v in games_df.loc[(games_df['date'] <= cwp_date) & (games_df['home'] == games_df['win'])].value_counts(subset = ['home', 'away']).items():
+            win_table.at[k] += v
+        for k, v in games_df.loc[(games_df['date'] <= cwp_date) & (games_df['away'] == games_df['win'])].value_counts(subset = ['away', 'home']).items():
+            win_table.at[k] += v
+        for k, v in games_df.loc[(games_df['date'] <= cwp_date) & (games_df['win'] == 'draw')].value_counts(subset=['home', 'away']).items():
+            draw_table.at[k] += v
+            draw_table.at[k[::-1]] += v
         simulation_games = 16 - (win_table + win_table.T + draw_table)
         # 현재 순위표 작성
         if cwp_date not in standing.index:
             current_standing = pd.DataFrame([win_table.sum(axis = 1), win_table.T.sum(axis = 1), draw_table.sum(axis = 1)], index = ['승', '패', '무']).T
             current_standing['승률'] = current_standing['승'] / (current_standing['승'] + current_standing['패'])
             current_standing.sort_values('승률', ascending=False, inplace = True)
-            current_standing['승차'] = [((current_standing.loc[current_standing.index[0], '승'] - current_standing.loc[current_standing.index[0], '패']) - (current_standing.loc[following, '승'] - current_standing.loc[following, '패'])) /2 if current_standing.iloc[0]['승률'] != current_standing.loc[following, '승률'] else pd.NA for following in current_standing.index]
+            current_standing['승차'] = [((current_standing.at[current_standing.index[0], '승'] - current_standing.at[current_standing.index[0], '패']) - (current_standing.at[following, '승'] - current_standing.at[following, '패'])) /2 if current_standing.iloc[0]['승률'] != current_standing.at[following, '승률'] else pd.NA for following in current_standing.index]
             current_standing.index = pd.MultiIndex.from_tuples(zip([cwp_date] * 10 , current_standing.index))
             standing = pd.concat([standing, current_standing])
             standing.to_pickle(args.standing_output)
@@ -97,19 +97,19 @@ if __name__ == '__main__':
     cli = pd.read_pickle(args.cli_path) if args.cli_path else pd.DataFrame(
     index = pd.MultiIndex([[],[]], [[],[]], names = ['date', 'team']),
     columns = ['cLI', 'cWin', 'cLose', 'pLI', 'pWin', 'pLose'])
-    for coming_idx in coming.drop_duplicates(subset = ['away', 'home']).index:
+    for coming_idx in tqdm(coming.drop_duplicates(subset = ['away', 'home']).index, desc='CLI calculation'):
         win_table = initial_table.copy(deep=True)
         draw_table = initial_table.copy(deep=True)
-        for idx in games_df.loc[games_df['date'] < coming.loc[coming_idx, 'date']].index:
-            if games_df.loc[idx, 'win'] == 'draw':
-                draw_table.loc[games_df.loc[idx, 'home'], games_df.loc[idx, 'away']] += 1
-                draw_table.loc[games_df.loc[idx, 'away'], games_df.loc[idx, 'home']] += 1
-            else:
-                opposite = games_df.loc[idx, 'home'] if games_df.loc[idx, 'home'] != games_df.loc[idx, 'win'] else games_df.loc[idx, 'away']
-                win_table.loc[games_df.loc[idx, 'win'], opposite] += 1
+        for k, v in games_df.loc[(games_df['date'] < coming.at[coming_idx, 'date']) & (games_df['home'] == games_df['win'])].value_counts(subset = ['home', 'away']).items():
+            win_table.at[k] += v
+        for k, v in games_df.loc[(games_df['date'] < coming.at[coming_idx, 'date']) & (games_df['away'] == games_df['win'])].value_counts(subset = ['away', 'home']).items():
+            win_table.at[k] += v
+        for k, v in games_df.loc[(games_df['date'] < coming.at[coming_idx, 'date']) & (games_df['win'] == 'draw')].value_counts(subset=['home', 'away']).items():
+            draw_table.at[k] += v
+            draw_table.at[k[::-1]] += v
         # 홈팀이 승리한 경우
         win_if_homewin = win_table.copy()
-        win_if_homewin.loc[coming.loc[coming_idx, 'home'], coming.loc[coming_idx, 'away']] += 1
+        win_if_homewin.at[coming.at[coming_idx, 'home'], coming.at[coming_idx, 'away']] += 1
         pool = multiprocessing.Pool(processes = args.process_num)
         output_list = pool.starmap(season_simulation, [(16 - (win_if_homewin + win_if_homewin.T + draw_table), win_if_homewin, draw_table, win_ratio, args.simulation_try // args.process_num)] * args.process_num)
         pool.close()
@@ -117,21 +117,21 @@ if __name__ == '__main__':
         homewin_simulation_summary = sum(output_list) / args.simulation_try
         # 원정팀이 승리한 경우
         win_if_awaywin = win_table.copy()
-        win_if_awaywin.loc[coming.loc[coming_idx, 'away'], coming.loc[coming_idx, 'home']] += 1
+        win_if_awaywin.at[coming.at[coming_idx, 'away'], coming.at[coming_idx, 'home']] += 1
         pool = multiprocessing.Pool(processes = args.process_num)
         output_list = pool.starmap(season_simulation, [(16 - (win_if_awaywin + win_if_awaywin.T + draw_table), win_if_awaywin, draw_table, win_ratio, args.simulation_try // args.process_num)] * args.process_num)
         pool.close()
         pool.join()
         awaywin_simulation_summary = sum(output_list) / args.simulation_try
         # cLI 계산
-        cli.loc[(coming.loc[coming_idx, 'date'], coming.loc[coming_idx, 'home']), 'cWin'] = homewin_simulation_summary.loc[coming.loc[coming_idx, 'home'], 1]
-        cli.loc[(coming.loc[coming_idx, 'date'], coming.loc[coming_idx, 'home']), 'cLose'] = awaywin_simulation_summary.loc[coming.loc[coming_idx, 'home'], 1]
-        cli.loc[(coming.loc[coming_idx, 'date'], coming.loc[coming_idx, 'away']), 'cWin'] = awaywin_simulation_summary.loc[coming.loc[coming_idx, 'away'], 1]
-        cli.loc[(coming.loc[coming_idx, 'date'], coming.loc[coming_idx, 'away']), 'cLose'] = homewin_simulation_summary.loc[coming.loc[coming_idx, 'away'], 1]
-        cli.loc[(coming.loc[coming_idx, 'date'], coming.loc[coming_idx, 'home']), 'pWin'] = homewin_simulation_summary.loc[coming.loc[coming_idx, 'home'], :5].sum()
-        cli.loc[(coming.loc[coming_idx, 'date'], coming.loc[coming_idx, 'home']), 'pLose'] = awaywin_simulation_summary.loc[coming.loc[coming_idx, 'home'], :5].sum()
-        cli.loc[(coming.loc[coming_idx, 'date'], coming.loc[coming_idx, 'away']), 'pWin'] = awaywin_simulation_summary.loc[coming.loc[coming_idx, 'away'], :5].sum()
-        cli.loc[(coming.loc[coming_idx, 'date'], coming.loc[coming_idx, 'away']), 'pLose'] = homewin_simulation_summary.loc[coming.loc[coming_idx, 'away'], :5].sum()
+        cli.at[(coming.at[coming_idx, 'date'], coming.at[coming_idx, 'home']), 'cWin'] = homewin_simulation_summary.at[coming.at[coming_idx, 'home'], 1]
+        cli.at[(coming.at[coming_idx, 'date'], coming.at[coming_idx, 'home']), 'cLose'] = awaywin_simulation_summary.at[coming.at[coming_idx, 'home'], 1]
+        cli.at[(coming.at[coming_idx, 'date'], coming.at[coming_idx, 'away']), 'cWin'] = awaywin_simulation_summary.at[coming.at[coming_idx, 'away'], 1]
+        cli.at[(coming.at[coming_idx, 'date'], coming.at[coming_idx, 'away']), 'cLose'] = homewin_simulation_summary.at[coming.at[coming_idx, 'away'], 1]
+        cli.at[(coming.at[coming_idx, 'date'], coming.at[coming_idx, 'home']), 'pWin'] = homewin_simulation_summary.loc[coming.at[coming_idx, 'home'], :5].sum()
+        cli.at[(coming.at[coming_idx, 'date'], coming.at[coming_idx, 'home']), 'pLose'] = awaywin_simulation_summary.loc[coming.at[coming_idx, 'home'], :5].sum()
+        cli.at[(coming.at[coming_idx, 'date'], coming.at[coming_idx, 'away']), 'pWin'] = awaywin_simulation_summary.loc[coming.at[coming_idx, 'away'], :5].sum()
+        cli.at[(coming.at[coming_idx, 'date'], coming.at[coming_idx, 'away']), 'pLose'] = homewin_simulation_summary.loc[coming.at[coming_idx, 'away'], :5].sum()
 
         cli['cLI'] = (cli['cWin'] - cli['cLose']) / 0.02954
         cli['pLI'] = (cli['pWin'] - cli['pLose']) / 0.06363
