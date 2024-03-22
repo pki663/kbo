@@ -9,8 +9,8 @@ import pickle
 team_color = {
     'LG':['#C30452', '#000000'],
     'KT':['#000000', '#EB1C24'],
-    'SSG':['#CE0E2D', '#ffb81c'],
-    'NC':['#071d3d', '#c7a079'],
+    'SSG':['#ffb81c', '#CE0E2D'],
+    'NC':['#c7a079', '#071d3d'],
     '두산':['#FFFFFF', '#131230'],
     'KIA':['#EA0029', '#06141F'],
     '롯데':['#6CACE4', '#D00F31'],
@@ -34,21 +34,21 @@ now_championship_fig.update_xaxes(title_text = '날짜', range = [max(days_list[
 now_postseason_fig.update_xaxes(title_text = '날짜', range = [max(days_list[0], days_list[-1] - timedelta(days = 15)), days_list[-1]], minallowed = days_list[0], maxallowed = days_list[-1])
 now_championship_fig.update_yaxes(title_text = '확률', range = [0, 1], fixedrange = True)
 now_postseason_fig.update_yaxes(title_text = '확률', range = [0, 1], fixedrange = True)
-now_championship_fig.update_layout(title_text = 'KBO 팀별 우승확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50, dragmode = 'pan')
-now_postseason_fig.update_layout(title_text = 'KBO 팀별 포스트시즌 진출확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50, dragmode = 'pan')
+now_championship_fig.update_layout(title_text = 'KBO 팀별 우승확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50, dragmode = 'pan', plot_bgcolor='#D9F2D0')
+now_postseason_fig.update_layout(title_text = 'KBO 팀별 포스트시즌 진출확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50, dragmode = 'pan', plot_bgcolor='#D9F2D0')
 for team, color in team_color.items():
     now_championship_fig.add_trace(go.Scatter(x=days_list, y = uniform_result.xs(team, level = 1)[1], name = team, mode = 'lines+markers', line = {'color': color[0], 'width' : 3}, marker = {'color': color[1], 'size': 3}, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
     now_postseason_fig.add_trace(go.Scatter(x=days_list, y = uniform_result.xs(team, level = 1).loc[:, 1:5].sum(axis = 1), name = team, mode = 'lines+markers', line = {'color': color[0], 'width' : 3}, marker = {'color': color[1], 'size': 3}, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
 
 last_result = uniform_result.loc[:max([x for x in days_list if x < coming_li.index.get_level_values(0).max()])]
 future_championship_fig = go.Figure(layout = go.Layout(hovermode='x'))
-future_championship_fig.update_xaxes(title_text = '날짜', range = [coming_li.index.get_level_values(0).max() - timedelta(days = 7), coming_li.index.get_level_values(0).max()], fixedrange = True)
+future_championship_fig.update_xaxes(title_text = '날짜', range = [coming_li.index.get_level_values(0).max() - timedelta(days = 7), coming_li.index.get_level_values(0).max()], fixedrange = True, dtick = 'D1')
 future_championship_fig.update_yaxes(title_text = '확률', range = [0, 1], fixedrange = True)
 future_postseason_fig = go.Figure(layout = go.Layout(hovermode='x'))
-future_postseason_fig.update_xaxes(title_text = '날짜', range = [coming_li.index.get_level_values(0).max() - timedelta(days = 7), coming_li.index.get_level_values(0).max()], fixedrange = True)
+future_postseason_fig.update_xaxes(title_text = '날짜', range = [coming_li.index.get_level_values(0).max() - timedelta(days = 7), coming_li.index.get_level_values(0).max()], fixedrange = True, dtick = 'D1')
 future_postseason_fig.update_yaxes(title_text = '확률', range = [0, 1], fixedrange = True)
-future_championship_fig.update_layout(title_text = '2023 시즌 KBO 팀별 우승 확률 예측', margin_l=10, margin_r=10, margin_b=10, margin_t=50)
-future_postseason_fig.update_layout(title_text = '2023 시즌 KBO 팀별 포스트시즌 진출 확률 예측', margin_l=10, margin_r=10, margin_b=10, margin_t=50)
+future_championship_fig.update_layout(title_text = '2023 시즌 KBO 팀별 우승 확률 예측', margin_l=10, margin_r=10, margin_b=10, margin_t=50, plot_bgcolor='#D9F2D0')
+future_postseason_fig.update_layout(title_text = '2023 시즌 KBO 팀별 포스트시즌 진출 확률 예측', margin_l=10, margin_r=10, margin_b=10, margin_t=50, plot_bgcolor='#D9F2D0')
 
 for team, color in team_color.items():
     future_championship_fig.add_trace(go.Scatter(
