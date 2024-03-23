@@ -183,7 +183,7 @@ def render_team_figure(team_selection, ratio_selection):
         for rank in range(10, 0, -1)
     ], layout = go.Layout(title = go.layout.Title(text = team_selection + ' 시즌 중 각 순위별 확률 변동'),
         hovermode = 'x'))
-    fig.update_layout(barmode = 'stack', margin_l=10, margin_r=10, margin_b=10, margin_t=40, dragmode = 'pan', modebar = {'displayModeBar': False})
+    fig.update_layout(barmode = 'stack', margin_l=10, margin_r=10, margin_b=10, margin_t=40, dragmode = 'pan', plot_bgcolor='#D9F2D0', paper_bgcolor="#DFDFDF")
     fig.update_xaxes(range = [min(days_list[0], days_list[-1] - timedelta(days = 7)), days_list[-1]], minallowed = min(days_list[0], days_list[-1] - timedelta(days = 7)), maxallowed = days_list[-1])
     fig.update_yaxes(title_text = '해당 순위 확률', range = [0, 1], fixedrange = True)
     return fig
@@ -205,7 +205,7 @@ def render_dateteam_figure(date_selection, ratio_selection):
         for rank in range(10, 0, -1)
     ], layout = go.Layout(title = go.layout.Title(text = date_selection + ' 각 팀별 순위확률'), 
         hovermode = 'x'))
-    fig.update_layout(barmode = 'stack', margin_l=10, margin_r=10, margin_b=10, margin_t=40)
+    fig.update_layout(barmode = 'stack', margin_l=10, margin_r=10, margin_b=10, margin_t=40, plot_bgcolor='#D9F2D0', paper_bgcolor="#DFDFDF")
     fig.update_xaxes(fixedrange = True)
     fig.update_yaxes(title_text = '해당 순위 확률', range = [0, 1], fixedrange = True)
     return fig
@@ -227,7 +227,7 @@ def render_datestanding_figure(date_selection, ratio_selection):
         for team, color in team_color.items()
     ], layout = go.Layout(title = go.layout.Title(text = date_selection + ' 각 순위별 확률'), 
         hovermode = 'x'))
-    fig.update_layout(barmode = 'stack', margin_l=10, margin_r=10, margin_b=10, margin_t=40)
+    fig.update_layout(barmode = 'stack', margin_l=10, margin_r=10, margin_b=10, margin_t=40, plot_bgcolor='#D9F2D0', paper_bgcolor="#DFDFDF")
     fig.update_xaxes(fixedrange = True)
     fig.update_yaxes(title_text = '해당 순위 확률', range = [0, 1], fixedrange = True)
     return fig
