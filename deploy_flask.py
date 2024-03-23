@@ -185,7 +185,7 @@ def render_team_figure(team_selection, ratio_selection):
         hovermode = 'x'))
     fig.update_layout(barmode = 'stack', margin_l=10, margin_r=10, margin_b=10, margin_t=40, dragmode = 'pan', plot_bgcolor='#D9F2D0', paper_bgcolor="#DFDFDF")
     fig.update_xaxes(range = [min(days_list[0], days_list[-1] - timedelta(days = 7)), days_list[-1]], minallowed = min(days_list[0], days_list[-1] - timedelta(days = 7)), maxallowed = days_list[-1])
-    fig.update_yaxes(title_text = '해당 순위 확률', range = [0, 1], fixedrange = True)
+    fig.update_yaxes(title_text = '해당 순위 확률', range = [0, 1], fixedrange = True, tickformat = ',.3%')
     return fig
 
 @app.callback(Output("date-team", 'figure'), [Input("calender", 'date'), Input('date-ratio-type', 'value')])
@@ -207,7 +207,7 @@ def render_dateteam_figure(date_selection, ratio_selection):
         hovermode = 'x'))
     fig.update_layout(barmode = 'stack', margin_l=10, margin_r=10, margin_b=10, margin_t=40, plot_bgcolor='#D9F2D0', paper_bgcolor="#DFDFDF")
     fig.update_xaxes(fixedrange = True)
-    fig.update_yaxes(title_text = '해당 순위 확률', range = [0, 1], fixedrange = True)
+    fig.update_yaxes(title_text = '해당 순위 확률', range = [0, 1], fixedrange = True, tickformat = ',.3%')
     return fig
 
 @app.callback(Output("date-standing", 'figure'), [Input("calender", 'date'), Input('date-ratio-type', 'value')])
@@ -223,13 +223,13 @@ def render_datestanding_figure(date_selection, ratio_selection):
     else:
         return go.Figure()
     fig = go.Figure(data = [
-        go.Bar(name = team, x = [str(rank) + '위' for rank in range(1,11)], y = date_result.loc[team], marker_pattern_bgcolor = color[0], marker_pattern_fgcolor = color[1], marker_pattern_shape = '.', marker_pattern_size = 5)
+        go.Bar(name = team, x = [str(rank) + '위' for rank in range(1,11)], y = date_result.loc[team], marker_pattern_bgcolor = color[0], marker_pattern_fgcolor = color[1], marker_pattern_shape = '.', marker_pattern_size = 5, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]})
         for team, color in team_color.items()
     ], layout = go.Layout(title = go.layout.Title(text = date_selection + ' 각 순위별 확률'), 
         hovermode = 'x'))
     fig.update_layout(barmode = 'stack', margin_l=10, margin_r=10, margin_b=10, margin_t=40, plot_bgcolor='#D9F2D0', paper_bgcolor="#DFDFDF")
     fig.update_xaxes(fixedrange = True)
-    fig.update_yaxes(title_text = '해당 순위 확률', range = [0, 1], fixedrange = True)
+    fig.update_yaxes(title_text = '해당 순위 확률', range = [0, 1], fixedrange = True, tickformat = ',.3%')
     return fig
 
 @app.callback(Output("tutorial-contents", 'children'), Input("help-index", 'value'))
