@@ -34,13 +34,16 @@ action = webdriver.ActionChains(driver)
 driver.get('https://www.koreabaseball.com/Schedule/GameCenter/Main.aspx')
 
 # %%
-driver.execute_script("getGameDate('{}');".format(date.today().strftime('%Y%m%d')))
-time.sleep(0.3)
-coming_up = pd.DataFrame([[date.fromisoformat(x.get_attribute('g_dt')), x.get_attribute('away_nm'), x.get_attribute('home_nm')] for x in driver.find_elements(By.XPATH, '//li[@class="game-cont"]')], columns = ['date', 'away', 'home'])
-coming_up.to_pickle('data/comingup_games.pkl')
+for coming_day in [date.today() + timedelta(days=x) for x in range(0, 8)]:
+    driver.execute_script("getGameDate('{}');".format(coming_day))
+    time.sleep(0.3)
+    coming_up = pd.DataFrame([[date.fromisoformat(x.get_attribute('g_dt')), x.get_attribute('away_nm'), x.get_attribute('home_nm')] for x in driver.find_elements(By.XPATH, '//li[@class="game-cont"]')], columns = ['date', 'away', 'home'])
+    if len(coming_up):
+        break
 
 #%%
-for current in [game_df['date'].max() + timedelta(days=x) for x in range(1, int((date.today() - game_df['date'].max()).days))]:
+last_gameday = game_df['date'].max() if isinstance(game_df['date'].max(), date) else date.today() - timedelta(days=1)
+for current in [last_gameday + timedelta(days=x) for x in range(1, int((date.today() - last_gameday).days) + 1)]:
     driver.execute_script("getGameDate('{}');".format(current.strftime('%Y%m%d')))
     if current != date.fromisoformat(driver.find_element(By.CLASS_NAME, 'date-txt').text[:-3].replace('.', '-')):
         continue
@@ -48,3 +51,4 @@ for current in [game_df['date'].max() + timedelta(days=x) for x in range(1, int(
 
 # %%
 game_df.reset_index(drop = True).to_pickle('data/completed_games.pkl')
+coming_up.to_pickle('data/comingup_games.pkl')
