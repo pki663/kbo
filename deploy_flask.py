@@ -93,7 +93,7 @@ def render_page_content(pathname):
                 dcc.Tab(label = '포스트시즌 진출 확률', value = 'psp')
             ]),
             dcc.RadioItems(id = 'now-ratio-type', options = [{'label': '승률을 0.5로 통일', 'value': 'uniform'}, {'label': '작년기반 Log5 확률 적용', 'value': 'log5'}, {'label': '작년 상대전적 적용', 'value': 'opponent'}], value = 'uniform'),
-            dcc.Graph(id = 'now-fig', config={'displayModeBar': True}),
+            dcc.Graph(id = 'now-fig', config={'modeBarButtonsToRemove': ['select', 'lasso2d', 'autoScale'], 'displayModeBar': True, 'toImageButtonOptions': {'format': 'webp'}}),
             today_standing
         ])
     elif pathname == "/comingup":
@@ -104,7 +104,7 @@ def render_page_content(pathname):
                 dcc.Tab(label = '우승 확률 변화', value = 'cwli'),
                 dcc.Tab(label = '포스트시즌 진출 확률 변화', value = 'psli')
             ]),
-            dcc.Graph(id = 'future-fig', config={'displayModeBar': True}),
+            dcc.Graph(id = 'future-fig', config={'modeBarButtonsToRemove': ['select', 'lasso2d', 'autoScale'], 'displayModeBar': True, 'toImageButtonOptions': {'format': 'webp'}}),
             html.H2("다음 경기 요약"),
             html.H3(coming['date'].iloc[0].isoformat(), style={'text-align':'center'})
         ] + coming_games)
@@ -113,13 +113,13 @@ def render_page_content(pathname):
             html.H3("팀 별 시즌 중 순위 확률 변화 분석"),
             dcc.Dropdown(list(team_color.keys()), '', id = 'team-dropdown', placeholder='분석할 팀을 선택해주세요', style = {"margin-left": "0.5rem", 'width': '80%', 'border-width': '2px', 'border-color': 'gray'}, searchable = False),
             dcc.RadioItems(id = 'team-ratio-type', options = [{'label': '승률을 0.5로 통일', 'value': 'uniform'}, {'label': '작년기반 Log5 확률 적용', 'value': 'log5'}, {'label': '작년 상대전적 적용', 'value': 'opponent'}], value = 'uniform'),
-            dcc.Graph(id = 'team-standing', config={'displayModeBar': True}),
+            dcc.Graph(id = 'team-standing', config={'modeBarButtonsToRemove': ['select', 'lasso2d', 'autoScale'], 'displayModeBar': True, 'toImageButtonOptions': {'format': 'webp'}}),
             html.Hr(),
             html.H3("날짜별 순위별 확률 분석"),
             dcc.RadioItems(id = 'date-ratio-type', options = [{'label': '승률을 0.5로 통일', 'value': 'uniform'}, {'label': '작년기반 Log5 확률 적용', 'value': 'log5'}, {'label': '작년 상대전적 적용', 'value': 'opponent'}], value = 'uniform'),
             dcc.DatePickerSingle(id = 'calender', min_date_allowed=uniform_result.index.get_level_values(level = 0).min(), max_date_allowed=uniform_result.index.get_level_values(level = 0).max(), disabled_days=[x for x in pd.date_range(start = uniform_result.index.get_level_values(level = 0).min(), end = uniform_result.index.get_level_values(level = 0).max()).date if x not in uniform_result.index.get_level_values(level = 0)], placeholder='날짜 선택', display_format='YYYY-MM-DD', style = {"margin-left": "1rem", 'border' : '2px solid gray'}, initial_visible_month = uniform_result.index.get_level_values(level = 0).max()),
-            dcc.Graph(id = 'date-team', config={'displayModeBar': True}),
-            dcc.Graph(id = 'date-standing', config={'displayModeBar': True})
+            dcc.Graph(id = 'date-team', config={'modeBarButtonsToRemove': ['select', 'lasso2d', 'autoScale'], 'displayModeBar': True, 'toImageButtonOptions': {'format': 'webp'}}),
+            dcc.Graph(id = 'date-standing', config={'modeBarButtonsToRemove': ['select', 'lasso2d', 'autoScale'], 'displayModeBar': True, 'toImageButtonOptions': {'format': 'webp'}})
         ])
     elif pathname == '/help':
         return html.Div([
