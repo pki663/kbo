@@ -111,7 +111,7 @@ def render_page_content(pathname):
     elif pathname == "/standing":
         return html.Div([
             html.H3("팀 별 시즌 중 순위 확률 변화 분석"),
-            dcc.Dropdown(list(team_color.keys()), '', id = 'team-dropdown', placeholder='분석할 팀을 선택해주세요', style = {"margin-left": "0.5rem", 'width': '80%', 'border-width': '2px', 'border-color': 'gray'}),
+            dcc.Dropdown(list(team_color.keys()), '', id = 'team-dropdown', placeholder='분석할 팀을 선택해주세요', style = {"margin-left": "0.5rem", 'width': '80%', 'border-width': '2px', 'border-color': 'gray'}, searchable = False),
             dcc.RadioItems(id = 'team-ratio-type', options = [{'label': '승률을 0.5로 통일', 'value': 'uniform'}, {'label': '작년기반 Log5 확률 적용', 'value': 'log5'}, {'label': '작년 상대전적 적용', 'value': 'opponent'}], value = 'uniform'),
             dcc.Graph(id = 'team-standing', config={'displayModeBar': True}),
             html.Hr(),
