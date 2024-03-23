@@ -116,6 +116,7 @@ def render_page_content(pathname):
             dcc.Graph(id = 'team-standing'),
             html.Hr(),
             html.H3("날짜별 순위별 확률 분석"),
+            dcc.RadioItems(id = 'date-ratio-type', options = [{'label': '승률을 0.5로 통일', 'value': 'uniform'}, {'label': '작년기반 Log5 확률 적용', 'value': 'log5'}, {'label': '작년 상대전적 적용', 'value': 'opponent'}], value = 'uniform'),
             dcc.DatePickerSingle(id = 'calender', min_date_allowed=uniform_result.index.get_level_values(level = 0).min(), max_date_allowed=uniform_result.index.get_level_values(level = 0).max(), disabled_days=[x for x in pd.date_range(start = uniform_result.index.get_level_values(level = 0).min(), end = uniform_result.index.get_level_values(level = 0).max()).date if x not in uniform_result.index.get_level_values(level = 0)], placeholder='날짜 선택', display_format='YYYY-MM-DD', style = {"margin-left": "1rem", 'border' : '2px solid gray'}, initial_visible_month = uniform_result.index.get_level_values(level = 0).max()),
             dcc.Graph(id = 'date-team'),
             dcc.Graph(id = 'date-standing')
@@ -183,7 +184,7 @@ def render_team_figure(team_selection, ratio_selection):
     ], layout = go.Layout(title = go.layout.Title(text = team_selection + ' 시즌 중 각 순위별 확률 변동'),
         hovermode = 'x'))
     fig.update_layout(barmode = 'stack', margin_l=10, margin_r=10, margin_b=10, margin_t=40, dragmode = 'pan')
-    fig.update_xaxes(range = [max(days_list[0], days_list[-1] - timedelta(days = 15)), days_list[-1]], minallowed = days_list[0], maxallowed = days_list[-1])
+    fig.update_xaxes(range = [min(days_list[0], days_list[-1] - timedelta(days = 7)), days_list[-1]], minallowed = min(days_list[0], days_list[-1] - timedelta(days = 7)), maxallowed = days_list[-1])
     fig.update_yaxes(title_text = '해당 순위 확률', range = [0, 1], fixedrange = True)
     return fig
 
@@ -209,11 +210,18 @@ def render_dateteam_figure(date_selection, ratio_selection):
     fig.update_yaxes(title_text = '해당 순위 확률', range = [0, 1], fixedrange = True)
     return fig
 
-@app.callback(Output("date-standing", 'figure'), Input("calender", 'date'))
-def render_datestanding_figure(date_selection):
+@app.callback(Output("date-standing", 'figure'), [Input("calender", 'date'), Input('date-ratio-type', 'value')])
+def render_datestanding_figure(date_selection, ratio_selection):
     if pd.isna(date_selection):
         return go.Figure()
-    date_result = uniform_result.loc[date.fromisoformat(date_selection)]
+    if ratio_selection == 'uniform':
+        date_result = uniform_result.loc[date.fromisoformat(date_selection)]
+    elif ratio_selection == 'log5':
+        date_result = log5_result.loc[date.fromisoformat(date_selection)]
+    elif ratio_selection == 'opponent':
+        date_result = opponent_result.loc[date.fromisoformat(date_selection)]
+    else:
+        return go.Figure()
     fig = go.Figure(data = [
         go.Bar(name = team, x = [str(rank) + '위' for rank in range(1,11)], y = date_result.loc[team], marker_pattern_bgcolor = color[0], marker_pattern_fgcolor = color[1], marker_pattern_shape = '.', marker_pattern_size = 5)
         for team, color in team_color.items()
