@@ -97,7 +97,7 @@ if __name__ == '__main__':
     cli = pd.read_pickle(args.cli_path) if args.cli_path else pd.DataFrame(
     index = pd.MultiIndex([[],[]], [[],[]], names = ['date', 'team']),
     columns = ['cLI', 'cWin', 'cLose', 'pLI', 'pWin', 'pLose'])
-    for coming_idx in tqdm(coming.drop_duplicates(subset = ['away', 'home']).index, desc='CLI calculation'):
+    for coming_idx in tqdm([x for x in coming.drop_duplicates(subset = ['away', 'home']).index if coming.at[x, 'date'] not in cli.index.get_level_values(0)], desc='CLI calculation'):
         win_table = initial_table.copy(deep=True)
         draw_table = initial_table.copy(deep=True)
         for k, v in games_df.loc[(games_df['date'] < coming.at[coming_idx, 'date']) & (games_df['home'] == games_df['win'])].value_counts(subset = ['home', 'away']).items():

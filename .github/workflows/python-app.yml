@@ -4,9 +4,9 @@
 name: KBO scrapper - Update data
 
 on:
-#  schedule:
-#    - cron: '0 16 * * *' # 매일 AM 1시에 실행
-  workflow_dispatch
+  workflow_dispatch:
+  schedule:
+    - cron: '0 15 * 3-10 *' # 매일 자정에 실행
 
 permissions: write-all
 
@@ -43,7 +43,7 @@ jobs:
         git add ./data
         git add ./fig
         if [[ ! `git status --porcelain` ]]; then exit 0; fi
-        git commit -m "Auto - Preprocess"
+        git commit -m "Auto: `date +'%Y-%m-%d %z'`"
     - name: Push
       uses: ad-m/github-push-action@master
       with:
