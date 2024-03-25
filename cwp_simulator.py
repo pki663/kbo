@@ -1,15 +1,13 @@
-#%%
 import os
 import sys
 from scipy.stats import binom
 import pandas as pd
-from datetime import date, timedelta
+from datetime import date
 import multiprocessing
 import argparse
 from tqdm import tqdm
 pd.set_option('future.no_silent_downcasting', True)
 
-#%%
 parser = argparse.ArgumentParser()
 parser.add_argument("-n", "--numsimulation", dest = 'simulation_try', action = 'store', type = int, default = 25000)
 parser.add_argument("-p", "--processes", dest = 'process_num', action = 'store', type = int, default = 4)
@@ -41,7 +39,6 @@ if isinstance(args.winratio, str) and os.path.isfile(args.winratio):
 else:
     win_ratio = pd.DataFrame(0.5, index = team_list, columns = team_list)
 
-#%%
 def log5(team_ratio: float, opponent_ratio: float) -> float:
     return team_ratio * (1-opponent_ratio) / (team_ratio * (1-opponent_ratio) + opponent_ratio * (1-team_ratio))
 

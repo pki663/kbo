@@ -4,7 +4,6 @@ from plotly.io import read_json
 import pandas as pd
 from datetime import date, timedelta
 from dash import Dash, html, dcc, Input, Output, callback, dash_table, get_asset_url
-from dash.dash_table.Format import Format, Scheme
 import dash_bootstrap_components as dbc
 import pickle
 
@@ -55,8 +54,6 @@ navbar = dbc.NavbarSimple(
 content = html.Div(id='page-content', style = {"padding-top": "10px", 'padding-left': '0.5rem', 'padding-right': '0.5rem'})
 app.layout = html.Div([dcc.Location(id="url"), navbar, content])
 
-# 팀별 순위변화 읽는 예시: standing.xs('한화', level = 1)
-# 날짜별 순위표 읽는 예시: standing.loc[date(2023, 4, 15): date(2023, 4, 25)]
 uniform_result = pd.read_pickle('data/uniform_probability.pkl')
 log5_result = pd.read_pickle('data/log5_probability.pkl')
 opponent_result = pd.read_pickle('data/opponent_probability.pkl')
