@@ -114,22 +114,32 @@ today_standing = dash_table.DataTable(
     today_standing.to_dict('records'),
     [{'name': i, 'id': i} if i != '승률' else {'name': i, 'id': i, 'type': 'numeric', 'format': Format(precision=3, scheme=Scheme.fixed)} for i in today_standing.columns.tolist()],
     style_data_conditional=[
-        {'if': {'row_index': [idx for idx, x in enumerate(today_standing['팀명']) if uniform_result.loc[(standing.index.get_level_values(0).max(), x), 1:5].sum() == 1.0]}, 'backgroundColor': '#BEF5CE'},
-        {'if': {'row_index': [idx for idx, x in enumerate(today_standing['팀명']) if uniform_result.loc[(standing.index.get_level_values(0).max(), x), 1] == 1.0]}, 'backgroundColor': '#F5F0AE'},
-        {'if': {'row_index': [idx for idx, x in enumerate(today_standing['팀명']) if uniform_result.loc[(standing.index.get_level_values(0).max(), x), 6:10].sum() == 1.0]}, 'backgroundColor': '#F5B2AF'},
-        {'if': {'row_index': [idx for idx, x in enumerate(today_standing['팀명']) if uniform_result.loc[(standing.index.get_level_values(0).max(), x)].max() == 1.0]},
+        {'if': {'row_index': [idx for idx, x in enumerate(today_standing['팀명']) if uniform_result.loc[(standing.index.get_level_values(0).max(), x), 1:5].sum() >= 1.0]}, 'backgroundColor': '#BEF5CE'},
+        {'if': {'row_index': [idx for idx, x in enumerate(today_standing['팀명']) if uniform_result.loc[(standing.index.get_level_values(0).max(), x), 1] >= 1.0]}, 'backgroundColor': '#F5F0AE'},
+        {'if': {'row_index': [idx for idx, x in enumerate(today_standing['팀명']) if uniform_result.loc[(standing.index.get_level_values(0).max(), x), 6:10].sum() >= 1.0]}, 'backgroundColor': '#F5B2AF'},
+        {'if': {'row_index': [idx for idx, x in enumerate(today_standing['팀명']) if uniform_result.loc[(standing.index.get_level_values(0).max(), x)].max() >= 1.0]},
         'border-bottom': '2px solid black'}
     ],
     style_cell_conditional=[{'if': {'column_id': ['순위', '팀명']}, 'fontWeight': 'bold'}],
     style_table={'margin-left': 'auto', 'margin-right': 'auto', 'margin-bottom': '10px', 'width': '100%', 'max-width': '700px'},)
 
 coming_games = []
+prev_cwp = uniform_result.loc[uniform_result.index.get_level_values(0).max(), 1]
+prev_psp = uniform_result.loc[uniform_result.index.get_level_values(0).max(), 1:5].sum(axis = 1)
 for idx in coming.index:
     game_df = pd.DataFrame(
-        data = coming_li.loc[[(coming.loc[idx, 'date'], coming.loc[idx, 'away']), (coming.loc[idx, 'date'], coming.loc[idx, 'home'])]].astype(float).round(3).T.values,
+        data = coming_li.loc[[(coming.loc[idx, 'date'], coming.loc[idx, 'away']), (coming.loc[idx, 'date'], coming.loc[idx, 'home'])]].astype(float).T.values,
         columns = [coming.loc[idx, 'away'], coming.loc[idx, 'home']]
     )
-    game_df['VS'] = ['우승 중요도', '승리 시 우승 확률', '패배 시 우승 확률', '포스트시즌 진출 중요도', '승리 시 포스트시즌 확률', '패배 시 포스트시즌 확률']
+    game_df = pd.concat([game_df.iloc[:2].T, (game_df.loc[1] - prev_cwp.loc[game_df.columns]).to_frame(), game_df.iloc[2].to_frame(), (game_df.loc[2] - prev_cwp.loc[game_df.columns]).to_frame(), game_df.iloc[3:5].T, (game_df.loc[4] - prev_psp.loc[game_df.columns]).to_frame(), game_df.iloc[5].to_frame(), (game_df.loc[5] - prev_psp.loc[game_df.columns]).to_frame()], axis = 1, ignore_index=True).T.astype(object)
+
+    for stat_idx in [0,5]:
+        game_df.loc[stat_idx] = game_df.loc[stat_idx].apply(lambda x: f'{x:.3f}')
+    for stat_idx in [1,3,6,8]:
+        game_df.loc[stat_idx] = game_df.loc[stat_idx].apply(lambda x: f'{x:.2%}')
+    for stat_idx in [2,4,7,9]:
+        game_df.loc[stat_idx] = game_df.loc[stat_idx].apply(lambda x: '(' + f'{x:+.2%}' + 'p)')
+    game_df['VS'] = ['우승 중요도', '승리 시 우승 확률', '(변화량)', '패배 시 우승 확률', '(변화량)', '포스트시즌 진출 중요도', '승리 시 포스트시즌 확률', '(변화량)', '패배 시 포스트시즌 확률', '(변화량)']
     game_df = game_df[[coming.loc[idx, 'away'], 'VS', coming.loc[idx, 'home']]]
     coming_games.append(dash_table.DataTable(
         game_df.to_dict('records'),
@@ -143,6 +153,13 @@ for idx in coming.index:
                 'backgroundColor': color[0],
                 'color': color[1]
             } for team, color in team_color.items()
+        ],
+        style_data_conditional = [
+            {
+                'if': {'row_index': [2, 4, 7, 9]},
+                'border-top': ' 0px solid black',
+                'font-size': '12px'
+            }
         ]
     ))
 
