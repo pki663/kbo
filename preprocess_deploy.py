@@ -87,11 +87,19 @@ for team, color in team_color.items():
         future_championship_fig.add_trace(go.Scatter(
             x=[last_result.index.get_level_values(0).max(), coming_li.index.get_level_values(0).max()],
             y = [last_result.loc[(last_result.index.get_level_values(0).max(), team), 1], coming_li.xs(team, level = 1)['cWin'].iloc[-1]],
-            mode = 'lines+text', line = {'color': color[0], 'width' : 3, 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip'))
+            mode = 'lines', line = {'color': color[0], 'width' : 3, 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip'))
         future_championship_fig.add_trace(go.Scatter(
             x=[last_result.index.get_level_values(0).max(), coming_li.index.get_level_values(0).max()],
             y = [last_result.loc[(last_result.index.get_level_values(0).max(), team), 1], coming_li.xs(team, level = 1)['cLose'].iloc[-1]],
-            mode = 'lines+text', line = {'color': color[0], 'width' : 3, 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip'))
+            mode = 'lines', line = {'color': color[0], 'width' : 3, 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip'))
+        future_championship_fig.add_trace(go.Scatter(name = team + '(승리)',
+            x=[coming_li.index.get_level_values(0).max()],
+            y = [coming_li.xs(team, level = 1)['cWin'].iloc[-1]],
+            mode = 'markers', marker = {'color': color[1], 'opacity': 0}, showlegend=False, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
+        future_championship_fig.add_trace(go.Scatter(name = team + '(패배)',
+            x=[coming_li.index.get_level_values(0).max()],
+            y = [coming_li.xs(team, level = 1)['cLose'].iloc[-1]],
+            mode = 'markers', marker = {'color': color[1], 'opacity': 0}, showlegend=False, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
 
     future_postseason_fig.add_trace(go.Scatter(
         x=last_result.index.get_level_values(0).drop_duplicates(),
@@ -102,11 +110,19 @@ for team, color in team_color.items():
         future_postseason_fig.add_trace(go.Scatter(
             x=[last_result.index.get_level_values(0).max(), coming_li.index.get_level_values(0).max()],
             y = [last_result.loc[(last_result.index.get_level_values(0).max(), team), 1:5].sum(), coming_li.xs(team, level = 1)['pWin'].iloc[-1]],
-            mode = 'lines+text', line = {'color': color[0], 'width' : 3, 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip'))
+            mode = 'lines', line = {'color': color[0], 'width' : 3, 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip'))
         future_postseason_fig.add_trace(go.Scatter(
             x=[last_result.index.get_level_values(0).max(), coming_li.index.get_level_values(0).max()],
             y = [last_result.loc[(last_result.index.get_level_values(0).max(), team), 1:5].sum(), coming_li.xs(team, level = 1)['pLose'].iloc[-1]],
-            mode = 'lines+text', line = {'color': color[0], 'width' : 3, 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip'))
+            mode = 'lines', line = {'color': color[0], 'width' : 3, 'dash': 'dash'}, marker = {'color': color[1], 'size': 3}, showlegend=False, hoverinfo='skip'))
+        future_postseason_fig.add_trace(go.Scatter(name = team + '(승리)',
+            x=[coming_li.index.get_level_values(0).max()],
+            y = [coming_li.xs(team, level = 1)['pWin'].iloc[-1]],
+            mode = 'markers', marker = {'color': color[1], 'opacity': 0}, showlegend=False, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
+        future_postseason_fig.add_trace(go.Scatter(name = team + '(패배)',
+            x=[coming_li.index.get_level_values(0).max()],
+            y = [coming_li.xs(team, level = 1)['pLose'].iloc[-1]],
+            mode = 'markers', marker = {'color': color[1], 'opacity': 0}, showlegend=False, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
 
 today_standing = standing.loc[standing.index.get_level_values(0).max()].reset_index(names = '팀명')
 today_standing = pd.concat([today_standing['승률'].rank(method = 'min', ascending=False).astype(int).rename('순위'), today_standing], axis = 1)
