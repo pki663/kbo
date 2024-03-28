@@ -1,13 +1,12 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import platform
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta, datetime, time, timezone
 import pandas as pd
 import time
 import sys
 
-print(datetime.now())
-if pd.read_pickle('data/comingup_games.pkl')['date'].min() >= date.today():
+if datetime.combine(pd.read_pickle('data/comingup_games.pkl')['date'].min(), time(hour = 23, minute = 30), timezone(timedelta(hours=9))) >= datetime.now(timezone(timedelta(hours=9))):
     sys.exit(19990423)
 
 game_df = pd.read_pickle('data/completed_games.pkl')
