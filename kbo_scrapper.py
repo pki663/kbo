@@ -6,8 +6,8 @@ import pandas as pd
 import time
 import sys
 
-if datetime.combine(pd.read_pickle('data/comingup_games.pkl')['date'].min(), time(hour = 23, minute = 30), timezone(timedelta(hours=9))) >= datetime.now(timezone(timedelta(hours=9))):
-    sys.exit(19990423)
+if pd.read_pickle('data/comingup_games.pkl')['date'].iloc[0] > date.today():
+    sys.exit()
 
 game_df = pd.read_pickle('data/completed_games.pkl')
 if 'Linux' == platform.system():
