@@ -1,11 +1,12 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import platform
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 import pandas as pd
 import time
 import sys
 
+print(datetime.now())
 if pd.read_pickle('data/comingup_games.pkl')['date'].min() >= date.today():
     sys.exit(19990423)
 
