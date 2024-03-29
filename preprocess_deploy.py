@@ -1,10 +1,11 @@
 import plotly.graph_objects as go
-from plotly.io import write_json
+from plotly.io import write_json, read_json
 import pandas as pd
 from datetime import date, timedelta
 from dash import dash_table
 from dash.dash_table.Format import Format, Scheme
 import pickle
+import sys
 
 team_color = {
     'LG':['#C30452', '#000000'],
@@ -27,6 +28,10 @@ standing = pd.read_pickle('data/standing.pkl')
 coming = pd.read_pickle('data/comingup_games.pkl')
 
 days_list = sorted(uniform_result.index.get_level_values(0).drop_duplicates())
+
+prev = read_json(file = 'fig/now_championship_fig.json', engine = 'json')
+if prev.layout.xaxis.range[-1] == days_list[-1].isoformat():
+    sys.exit(0)
 
 now_championship_fig = go.Figure(layout = go.Layout(hovermode='x'))
 now_postseason_fig = go.Figure(layout = go.Layout(hovermode='x'))
