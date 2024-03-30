@@ -1,4 +1,3 @@
-#%%
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import pandas as pd
@@ -20,7 +19,6 @@ for idx in comingup_games.index:
 comingup_games.drop(canceled, inplace = True)
 
 completed_games = pd.concat([completed_games, comingup_games], ignore_index = True)
-comingup_games.drop(comingup_games.index, inplace = True)
 
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
 from selenium.webdriver.edge.service import Service
@@ -38,3 +36,4 @@ for coming_day in [comingup_games.iloc[0,0] + timedelta(days=x) for x in range(1
     if len(coming_up):
         break
 coming_up.to_pickle('data/comingup_games.pkl')
+completed_games.to_pickle('data/completed_games.pkl')
