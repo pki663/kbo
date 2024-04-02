@@ -35,12 +35,13 @@ for coming_day in [date.today() + timedelta(days=x) for x in range(0, 8)]:
     if len(coming_up):
         break
 
+# 진행 중인 경기는 game-cont ing, 끝난 경기는 game-cont end, 취소된 경기는 game-cont cancel
 last_gameday = game_df['date'].max() if isinstance(game_df['date'].max(), date) else date.today() - timedelta(days=1)
 for current in [last_gameday + timedelta(days=x) for x in range(1, int((date.today() - last_gameday).days) + 1)]:
     driver.execute_script("getGameDate('{}');".format(current.strftime('%Y%m%d')))
     if current != date.fromisoformat(driver.find_element(By.CLASS_NAME, 'date-txt').text[:-3].replace('.', '-')):
         continue
-    game_df = pd.concat([game_df, pd.DataFrame([[date.fromisoformat(x.get_attribute('g_dt')), x.get_attribute('away_nm'), x.get_attribute('home_nm'), x.find_element(By.XPATH, './/span[contains(@class, "win")]/../../../div[@class="emb"]/img').get_attribute('alt') if x.find_elements(By.CLASS_NAME, 'win') else 'draw'] for x in driver.find_elements(By.XPATH, '//li[@class="game-cont end"]')], columns = game_df.columns)])
+    game_df = pd.concat([game_df, pd.DataFrame([[date.fromisoformat(x.get_attribute('g_dt')), x.get_attribute('away_nm'), x.get_attribute('home_nm'), x.find_element(By.XPATH, './/div[@class="score win"]/preceding-sibling::div[@class="emb"]/img').get_attribute('alt') if x.find_elements(By.CLASS_NAME, 'win') else 'draw'] for x in driver.find_elements(By.XPATH, '//li[@class="game-cont end"]')], columns = game_df.columns)])
 
 game_df.reset_index(drop = True).to_pickle('data/completed_games.pkl')
 coming_up.to_pickle('data/comingup_games.pkl')
