@@ -56,7 +56,7 @@ app.layout = html.Div([dcc.Location(id="url"), navbar, content])
 
 uniform_result = pd.read_pickle('data/uniform_probability.pkl')
 log5_result = pd.read_pickle('data/log5_probability.pkl')
-opponent_result = pd.read_pickle('data/opponent_probability.pkl')
+pythagorean_result = pd.read_pickle('data/pythagorean_probability.pkl')
 coming_li = pd.read_pickle('data/li.pkl')
 standing = pd.read_pickle('data/standing.pkl')
 coming = pd.read_pickle('data/comingup_games.pkl')
@@ -74,8 +74,8 @@ now_championship_fig = read_json(file = 'fig/now_championship_fig.json', engine 
 now_postseason_fig = read_json(file = 'fig/now_postseason_fig.json', engine = 'json')
 log5_championship_fig = read_json(file = 'fig/log5_championship_fig.json', engine = 'json')
 log5_postseason_fig = read_json(file = 'fig/log5_postseason_fig.json', engine = 'json')
-opponent_championship_fig = read_json(file = 'fig/opponent_championship_fig.json', engine = 'json')
-opponent_postseason_fig = read_json(file = 'fig/opponent_postseason_fig.json', engine = 'json')
+pythagorean_championship_fig = read_json(file = 'fig/pythagorean_championship_fig.json', engine = 'json')
+pythagorean_postseason_fig = read_json(file = 'fig/pythagorean_postseason_fig.json', engine = 'json')
 future_championship_fig = read_json(file = 'fig/future_championship_fig.json', engine = 'json')
 future_postseason_fig = read_json(file = 'fig/future_postseason_fig.json', engine = 'json')
 
@@ -89,7 +89,7 @@ def render_page_content(pathname):
                 dcc.Tab(label = '우승 확률', value = 'cwp'),
                 dcc.Tab(label = '포스트시즌 진출 확률', value = 'psp')
             ]),
-            dcc.RadioItems(id = 'now-ratio-type', options = [{'label': '승률을 0.5로 통일', 'value': 'uniform'}, {'label': '작년기반 Log5 확률 적용', 'value': 'log5'}, {'label': '작년 상대전적 적용', 'value': 'opponent'}], value = 'uniform'),
+            dcc.RadioItems(id = 'now-ratio-type', options = [{'label': '승률을 0.5로 통일', 'value': 'uniform'}, {'label': '작년기반 Log5 확률 적용', 'value': 'log5'}, {'label': '피타고리안 기대승률 (n=1.83) 적용', 'value': 'pythagorean'}], value = 'uniform'),
             dcc.Graph(id = 'now-fig', config={'modeBarButtonsToRemove': ['select', 'lasso2d', 'autoScale'], 'displayModeBar': True, 'toImageButtonOptions': {'format': 'webp'}}),
             today_standing
         ])
@@ -109,11 +109,11 @@ def render_page_content(pathname):
         return html.Div([
             html.H3("팀 별 시즌 중 순위 확률 변화 분석"),
             dcc.Dropdown(list(team_color.keys()), '', id = 'team-dropdown', placeholder='분석할 팀을 선택해주세요', style = {"margin-left": "0.5rem", 'width': '80%', 'border-width': '2px', 'border-color': 'gray'}, searchable = False),
-            dcc.RadioItems(id = 'team-ratio-type', options = [{'label': '승률을 0.5로 통일', 'value': 'uniform'}, {'label': '작년기반 Log5 확률 적용', 'value': 'log5'}, {'label': '작년 상대전적 적용', 'value': 'opponent'}], value = 'uniform'),
+            dcc.RadioItems(id = 'team-ratio-type', options = [{'label': '승률을 0.5로 통일', 'value': 'uniform'}, {'label': '작년기반 Log5 확률 적용', 'value': 'log5'}, {'label': '피타고리안 기대승률 (n=1.83) 적용', 'value': 'pythagorean'}], value = 'uniform'),
             dcc.Graph(id = 'team-standing', config={'modeBarButtonsToRemove': ['select', 'lasso2d', 'autoScale'], 'displayModeBar': True, 'toImageButtonOptions': {'format': 'webp'}}),
             html.Hr(),
             html.H3("날짜별 순위별 확률 분석"),
-            dcc.RadioItems(id = 'date-ratio-type', options = [{'label': '승률을 0.5로 통일', 'value': 'uniform'}, {'label': '작년기반 Log5 확률 적용', 'value': 'log5'}, {'label': '작년 상대전적 적용', 'value': 'opponent'}], value = 'uniform'),
+            dcc.RadioItems(id = 'date-ratio-type', options = [{'label': '승률을 0.5로 통일', 'value': 'uniform'}, {'label': '작년기반 Log5 확률 적용', 'value': 'log5'}, {'label': '피타고리안 기대승률 (n=1.83) 적용', 'value': 'pythagorean'}], value = 'uniform'),
             dcc.DatePickerSingle(id = 'calender', min_date_allowed=uniform_result.index.get_level_values(level = 0).min(), max_date_allowed=uniform_result.index.get_level_values(level = 0).max(), disabled_days=[x for x in pd.date_range(start = uniform_result.index.get_level_values(level = 0).min(), end = uniform_result.index.get_level_values(level = 0).max()).date if x not in uniform_result.index.get_level_values(level = 0)], placeholder='날짜 선택', display_format='YYYY-MM-DD', style = {"margin-left": "1rem", 'border' : '2px solid gray'}, initial_visible_month = uniform_result.index.get_level_values(level = 0).max()),
             dcc.Graph(id = 'date-team', config={'modeBarButtonsToRemove': ['select', 'lasso2d', 'autoScale'], 'displayModeBar': True, 'toImageButtonOptions': {'format': 'webp'}}),
             dcc.Graph(id = 'date-standing', config={'modeBarButtonsToRemove': ['select', 'lasso2d', 'autoScale'], 'displayModeBar': True, 'toImageButtonOptions': {'format': 'webp'}})
@@ -146,15 +146,15 @@ def render_now_figure(fig_selection, ratio_selection):
             return now_championship_fig
         elif ratio_selection == 'log5':
             return log5_championship_fig
-        elif ratio_selection == 'opponent':
-            return opponent_championship_fig
+        elif ratio_selection == 'pythagorean':
+            return pythagorean_championship_fig
     elif fig_selection == 'psp':
         if ratio_selection == 'uniform':
             return now_postseason_fig
         elif ratio_selection == 'log5':
             return log5_postseason_fig
-        elif ratio_selection == 'opponent':
-            return opponent_postseason_fig
+        elif ratio_selection == 'pythagorean':
+            return pythagorean_postseason_fig
 
 @app.callback(Output("future-fig", 'figure'), Input("cwli-psli", 'value'))
 def render_future_figure(fig_selection):
@@ -171,8 +171,8 @@ def render_team_figure(team_selection, ratio_selection):
         team_result = uniform_result.xs(team_selection, level = 1)
     elif ratio_selection == 'log5':
         team_result = log5_result.xs(team_selection, level = 1)
-    elif ratio_selection == 'opponent':
-        team_result = opponent_result.xs(team_selection, level = 1)
+    elif ratio_selection == 'pythagorean':
+        team_result = pythagorean_result.xs(team_selection, level = 1)
     else:
         return go.Figure()
     fig = go.Figure(data = [
@@ -193,8 +193,8 @@ def render_dateteam_figure(date_selection, ratio_selection):
         date_result = uniform_result.loc[date.fromisoformat(date_selection)]
     elif ratio_selection == 'log5':
         date_result = log5_result.loc[date.fromisoformat(date_selection)]
-    elif ratio_selection == 'opponent':
-        date_result = opponent_result.loc[date.fromisoformat(date_selection)]
+    elif ratio_selection == 'pythagorean':
+        date_result = pythagorean_result.loc[date.fromisoformat(date_selection)]
     else:
         return go.Figure()
     fig = go.Figure(data = [
@@ -215,8 +215,8 @@ def render_datestanding_figure(date_selection, ratio_selection):
         date_result = uniform_result.loc[date.fromisoformat(date_selection)]
     elif ratio_selection == 'log5':
         date_result = log5_result.loc[date.fromisoformat(date_selection)]
-    elif ratio_selection == 'opponent':
-        date_result = opponent_result.loc[date.fromisoformat(date_selection)]
+    elif ratio_selection == 'pythagorean':
+        date_result = pythagorean_result.loc[date.fromisoformat(date_selection)]
     else:
         return go.Figure()
     fig = go.Figure(data = [
@@ -246,7 +246,7 @@ def show_tutorial(request_index):
             html.H4('이 프로젝트에서 추가로 제공하는 계산방법 (향후에)'),
             html.P('그러나, 기존의 계산 방법은 각 경기의 승리확률이 50%로 고정되어 각 팀의 전력 차이를 반영하지 못한다는 한계점이 있습니다. 이에 착안하여, 본 프로젝트는 두 가지의 경기별 승률 보정을 제공합니다.'),
             html.Ol([
-                html.P(['1. 전년도 상대전적을 활용한 시뮬레이션', html.Br(), html.Div('이 방식에서는 시뮬레이션에서 각 경기의 승리확률로 전년도의 상대전적을 사용합니다.'), html.Div('예를 들어, 2023시즌 LG 트윈스는 두산 베어스와의 경기에서 11승 5패로 상대승률 0.779를 기록했습니다. 이를 반영하여 LG 트윈스와 두산 베어스의 경기에서는 LG의 승리확률을 0.779로 적용하여 시뮬레이션을 진행하는 방식입니다.')]),
+                html.P(['1. 피타고리안 기대승률', html.Br(), html.Div('이 방식에서는 시뮬레이션에서 각 경기의 승리확률로 해당 시점까지의 피타고리안 기대승률 (지수는 1.83)을 사용합니다.'), html.Div('두 팀 간의 맞대결에서 아래의 Log5 승률에 피타고리안 기대승률을 대입한 것을 사용합니다.')]),
                 html.P(['2. Log5 방법을 활용한 시뮬레이션', html.Br(), html.Div(['Log5는 양 팀의 리그 승률을 기반으로 두 팀 간의 맞대결 기대승률을 계산하는 방법입니다. (구체적인 설명은 ', html.A('FreeRedbird씨께서 작성하신 설명글', href = 'https://birdsnest.tistory.com/347', target = '_blank', rel = 'noreferrer noopener'), '을 읽어봐주세요.)']), html.Div('이 방식에서 승률이 a인 A팀이 승률이 b인 B팀을 상대로 이길 확률은 다음 수식과 같습니다.'), html.Img(src = get_asset_url('log5.png')), html.Div('시뮬레이션 상에서는 위 식의 승률에 전년도의 리그 승률을 대입하여 각 경기의 승리확률에 적용합니다. 예를 들어, 작년 LG의 승률이 0.606이고, 키움의 승률은 0.521이었는데 이걸 위 식에 대입하면 LG가 키움과의 경기에서 승리할 확률은 0.586이 됩니다. 그리고 이 확률을 LG-키움 간의 경기에 일괄 적용하는 것입니다.')])
             ]),
             html.H3('Championship Leverage Index(cLI)'),

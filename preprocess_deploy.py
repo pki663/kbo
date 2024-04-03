@@ -23,7 +23,7 @@ team_color = {
 
 uniform_result = pd.read_pickle('data/uniform_probability.pkl')
 log5_result = pd.read_pickle('data/log5_probability.pkl')
-opponent_result = pd.read_pickle('data/opponent_probability.pkl')
+pythagorean_result = pd.read_pickle('data/pythagorean_probability.pkl')
 coming_li = pd.read_pickle('data/li.pkl')
 standing = pd.read_pickle('data/standing.pkl')
 coming = pd.read_pickle('data/comingup_games.pkl')
@@ -62,18 +62,18 @@ for team, color in team_color.items():
     log5_championship_fig.add_trace(go.Scatter(x=days_list, y = log5_result.xs(team, level = 1)[1], name = team, mode = 'lines+markers', line = {'color': color[0], 'width' : 3}, marker = {'color': color[1], 'size': 3}, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
     log5_postseason_fig.add_trace(go.Scatter(x=days_list, y = log5_result.xs(team, level = 1).loc[:, 1:5].sum(axis = 1), name = team, mode = 'lines+markers', line = {'color': color[0], 'width' : 3}, marker = {'color': color[1], 'size': 3}, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
 
-opponent_championship_fig = go.Figure(layout = go.Layout(hovermode='x'))
-opponent_postseason_fig = go.Figure(layout = go.Layout(hovermode='x'))
+pythagorean_championship_fig = go.Figure(layout = go.Layout(hovermode='x'))
+pythagorean_postseason_fig = go.Figure(layout = go.Layout(hovermode='x'))
 # if want rangeslider, add rangeslider = {'range' : [days_list[0], days_list[-1]]}
-opponent_championship_fig.update_xaxes(title_text = '날짜', range = [min(days_list[0], days_list[-1] - timedelta(days = 7)), days_list[-1]], minallowed = min(days_list[0], days_list[-1] - timedelta(days = 7)), maxallowed = days_list[-1])
-opponent_postseason_fig.update_xaxes(title_text = '날짜', range = [min(days_list[0], days_list[-1] - timedelta(days = 7)), days_list[-1]], minallowed = min(days_list[0], days_list[-1] - timedelta(days = 7)), maxallowed = days_list[-1])
-opponent_championship_fig.update_yaxes(title_text = '확률', range = [max(0, math.floor(log5_result.loc[:, 1].min() * 10) / 10), min(1, math.ceil(log5_result.loc[:, 1].max() * 10) / 10)], fixedrange = True, tickformat = ',.3%')
-opponent_postseason_fig.update_yaxes(title_text = '확률', range = [max(0, math.floor(log5_result.loc[:, 1:5].sum(axis = 1).min() * 10) / 10), min(1, math.ceil(log5_result.loc[:, 1:5].sum(axis = 1).max() * 10) / 10)], fixedrange = True, tickformat = ',.3%')
-opponent_championship_fig.update_layout(title_text = 'KBO 팀별 우승확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50, dragmode = 'pan', plot_bgcolor='#D9F2D0', paper_bgcolor="#DFDFDF")
-opponent_postseason_fig.update_layout(title_text = 'KBO 팀별 포스트시즌 진출확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50, dragmode = 'pan', plot_bgcolor='#D9F2D0', paper_bgcolor="#DFDFDF")
+pythagorean_championship_fig.update_xaxes(title_text = '날짜', range = [min(days_list[0], days_list[-1] - timedelta(days = 7)), days_list[-1]], minallowed = min(days_list[0], days_list[-1] - timedelta(days = 7)), maxallowed = days_list[-1])
+pythagorean_postseason_fig.update_xaxes(title_text = '날짜', range = [min(days_list[0], days_list[-1] - timedelta(days = 7)), days_list[-1]], minallowed = min(days_list[0], days_list[-1] - timedelta(days = 7)), maxallowed = days_list[-1])
+pythagorean_championship_fig.update_yaxes(title_text = '확률', range = [max(0, math.floor(pythagorean_result.loc[:, 1].min() * 10) / 10), min(1, math.ceil(pythagorean_result.loc[:, 1].max() * 10) / 10)], fixedrange = True, tickformat = ',.3%')
+pythagorean_postseason_fig.update_yaxes(title_text = '확률', range = [max(0, math.floor(pythagorean_result.loc[:, 1:5].sum(axis = 1).min() * 10) / 10), min(1, math.ceil(pythagorean_result.loc[:, 1:5].sum(axis = 1).max() * 10) / 10)], fixedrange = True, tickformat = ',.3%')
+pythagorean_championship_fig.update_layout(title_text = 'KBO 팀별 우승확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50, dragmode = 'pan', plot_bgcolor='#D9F2D0', paper_bgcolor="#DFDFDF")
+pythagorean_postseason_fig.update_layout(title_text = 'KBO 팀별 포스트시즌 진출확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50, dragmode = 'pan', plot_bgcolor='#D9F2D0', paper_bgcolor="#DFDFDF")
 for team, color in team_color.items():
-    opponent_championship_fig.add_trace(go.Scatter(x=days_list, y = opponent_result.xs(team, level = 1)[1], name = team, mode = 'lines+markers', line = {'color': color[0], 'width' : 3}, marker = {'color': color[1], 'size': 3}, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
-    opponent_postseason_fig.add_trace(go.Scatter(x=days_list, y = opponent_result.xs(team, level = 1).loc[:, 1:5].sum(axis = 1), name = team, mode = 'lines+markers', line = {'color': color[0], 'width' : 3}, marker = {'color': color[1], 'size': 3}, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
+    pythagorean_championship_fig.add_trace(go.Scatter(x=days_list, y = pythagorean_result.xs(team, level = 1)[1], name = team, mode = 'lines+markers', line = {'color': color[0], 'width' : 3}, marker = {'color': color[1], 'size': 3}, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
+    pythagorean_postseason_fig.add_trace(go.Scatter(x=days_list, y = pythagorean_result.xs(team, level = 1).loc[:, 1:5].sum(axis = 1), name = team, mode = 'lines+markers', line = {'color': color[0], 'width' : 3}, marker = {'color': color[1], 'size': 3}, hoverlabel = {'bgcolor': color[0], 'font_color': color[1]}))
 
 last_result = uniform_result.loc[:max([x for x in days_list if x < coming_li.index.get_level_values(0).max()])]
 future_championship_fig = go.Figure(layout = go.Layout(hovermode='x'))
@@ -136,7 +136,7 @@ today_standing = standing.loc[standing.index.get_level_values(0).max()].reset_in
 today_standing = pd.concat([today_standing['승률'].rank(method = 'min', ascending=False).astype(int).rename('순위'), today_standing], axis = 1)
 today_standing = dash_table.DataTable(
     today_standing.to_dict('records'),
-    [{'name': i, 'id': i} if i != '승률' else {'name': i, 'id': i, 'type': 'numeric', 'format': Format(precision=3, scheme=Scheme.fixed)} for i in today_standing.columns.tolist()],
+    [{'name': i, 'id': i} if i not in ['승률', '기대승률'] else {'name': i, 'id': i, 'type': 'numeric', 'format': Format(precision=3, scheme=Scheme.fixed)} for i in today_standing.columns.tolist()],
     style_data_conditional=[
         {'if': {'row_index': [idx for idx, x in enumerate(today_standing['팀명']) if uniform_result.loc[(standing.index.get_level_values(0).max(), x), 1:5].sum() >= 1.0]}, 'backgroundColor': '#BEF5CE'},
         {'if': {'row_index': [idx for idx, x in enumerate(today_standing['팀명']) if uniform_result.loc[(standing.index.get_level_values(0).max(), x), 1] >= 1.0]}, 'backgroundColor': '#F5F0AE'},
@@ -191,8 +191,8 @@ write_json(now_championship_fig, file = 'fig/now_championship_fig.json', engine 
 write_json(now_postseason_fig, file = 'fig/now_postseason_fig.json', engine = 'json')
 write_json(log5_championship_fig, file = 'fig/log5_championship_fig.json', engine = 'json')
 write_json(log5_postseason_fig, file = 'fig/log5_postseason_fig.json', engine = 'json')
-write_json(opponent_championship_fig, file = 'fig/opponent_championship_fig.json', engine = 'json')
-write_json(opponent_postseason_fig, file = 'fig/opponent_postseason_fig.json', engine = 'json')
+write_json(pythagorean_championship_fig, file = 'fig/pythagorean_championship_fig.json', engine = 'json')
+write_json(pythagorean_postseason_fig, file = 'fig/pythagorean_postseason_fig.json', engine = 'json')
 write_json(future_championship_fig, file = 'fig/future_championship_fig.json', engine = 'json')
 write_json(future_postseason_fig, file = 'fig/future_postseason_fig.json', engine = 'json')
 with open('fig/standing.pkl', 'wb') as fw:
