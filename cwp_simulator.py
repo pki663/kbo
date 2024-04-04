@@ -73,11 +73,11 @@ if __name__ == '__main__':
         scores = pd.DataFrame(index = team_list, columns = ['run_scored', 'run_allowed'])
         for team in team_list:
             scores.loc[team] = [games_df.loc[(games_df['home'] == team) & (games_df['date'] <= cwp_date), 'home_score'].sum() + games_df.loc[(games_df['away'] == team) & (games_df['date'] <= cwp_date), 'away_score'].sum(), games_df.loc[(games_df['home'] == team) & (games_df['date'] <= cwp_date), 'away_score'].sum() + games_df.loc[(games_df['away'] == team) & (games_df['date'] <= cwp_date), 'home_score'].sum()]
-        scores['피타고리안 기대승률'] = 1 / (1 + (scores['run_allowed'] / scores['run_scored'])**1.83)
+        scores['기대승률'] = 1 / (1 + (scores['run_allowed'] / scores['run_scored'])**1.83)
         if args.winratio == 'pythagorean':
             for team_idx in team_list:
                 for team_col in team_list[team_list.index(team_idx) + 1:]:
-                    win_ratio.at[team_idx, team_col] = log5(scores.at[team_idx, '피타고리안 기대승률'], scores.at[team_col, '피타고리안 기대승률'])
+                    win_ratio.at[team_idx, team_col] = log5(scores.at[team_idx, '기대승률'], scores.at[team_col, '기대승률'])
                     win_ratio.at[team_col, team_idx] = 1 - win_ratio.at[team_idx, team_col]
         # 현재 순위표 작성
         if cwp_date not in standing.index:
@@ -85,7 +85,7 @@ if __name__ == '__main__':
             current_standing['승률'] = current_standing['승'] / (current_standing['승'] + current_standing['패'])
             current_standing.sort_values('승률', ascending=False, inplace = True)
             current_standing['승차'] = [((current_standing.at[current_standing.index[0], '승'] - current_standing.at[current_standing.index[0], '패']) - (current_standing.at[following, '승'] - current_standing.at[following, '패'])) /2 if current_standing['승률'].max() != current_standing.at[following, '승률'] else pd.NA for following in current_standing.index]
-            current_standing = current_standing.merge(scores['피타고리안 기대승률'], left_index=True, right_index=True)
+            current_standing = current_standing.merge(scores['기대승률'], left_index=True, right_index=True)
             current_standing.sort_values(['승률', '승차'], ascending=[False, True], inplace = True)
             current_standing.index = pd.MultiIndex.from_tuples(zip([cwp_date] * 10 , current_standing.index))
             standing = pd.concat([standing, current_standing])
