@@ -30,11 +30,10 @@ coming = pd.read_pickle('data/comingup_games.pkl')
 
 days_list = sorted(uniform_result.index.get_level_values(0).drop_duplicates())
 
-'''
+
 prev = read_json(file = 'fig/now_championship_fig.json', engine = 'json')
 if prev.layout.xaxis.range[-1] == days_list[-1].isoformat():
     sys.exit(0)
-'''
 
 now_championship_fig = go.Figure(layout = go.Layout(hovermode='x'))
 now_postseason_fig = go.Figure(layout = go.Layout(hovermode='x'))
