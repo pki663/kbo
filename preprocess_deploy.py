@@ -149,7 +149,7 @@ today_standing = dash_table.DataTable(
 coming_games = []
 prev_cwp = uniform_result.loc[uniform_result.index.get_level_values(0).max(), 1]
 prev_psp = uniform_result.loc[uniform_result.index.get_level_values(0).max(), 1:5].sum(axis = 1)
-for idx in coming.index:
+for idx in coming.drop_duplicates().index:
     game_df = pd.DataFrame(
         data = coming_li.loc[[(coming.loc[idx, 'date'], coming.loc[idx, 'away']), (coming.loc[idx, 'date'], coming.loc[idx, 'home'])]].astype(float).T.values,
         columns = [coming.loc[idx, 'away'], coming.loc[idx, 'home']]
