@@ -55,7 +55,6 @@ def season_simulation(simulation_games, win_table, draw_table, win_ratio, num_at
             simulation_result.at[idx, simulation_standing[idx]] += 1
     return simulation_result
 
-# %%
 if __name__ == '__main__':
     for cwp_date in tqdm(sorted([x for x in games_df['date'].drop_duplicates() if x not in set([x[0] for x in standing_probability.index])]), desc='cWP calculation'):
         # 현재 전적 산출
