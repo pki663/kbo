@@ -38,7 +38,8 @@ navbar = dbc.NavbarSimple(
         dbc.NavLink("리그 현황", href="/", active="exact"),
         dbc.NavLink("다음경기 분석", href="/comingup", active="exact"),
         dbc.NavLink("순위 분석", href="/standing", active="exact"),
-        dbc.NavLink("도움말", href="/help", active='exact')
+        dbc.NavLink("도움말", href="/help", active='exact'),
+        dbc.NavLink("KBO INSIGHT (외부 사이트)", href="https://kboinsight.com", style = {'color': 'black'})
     ],
     fluid = True,
     brand='크보그래프',
