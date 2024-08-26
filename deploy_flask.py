@@ -98,7 +98,7 @@ def render_page_content(pathname):
         return html.Div([
             html.H2("다음 경기 예고"),
             html.Hr(),
-            dcc.Tabs(id = 'cwli-psli', value = 'cwli', children = [
+            dcc.Tabs(id = 'cwli-psli', value = 'psli', children = [
                 dcc.Tab(label = '우승 확률 변화', value = 'cwli'),
                 dcc.Tab(label = '포스트시즌 진출 확률 변화', value = 'psli')
             ]),
