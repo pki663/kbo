@@ -86,7 +86,7 @@ def render_page_content(pathname):
         return html.Div([
             html.H2(today.strftime('%m월 %d일') + " 경기 종료 후 상황"),
             html.Hr(),
-            dcc.Tabs(id = 'cwp-psp', value = 'cwp', children = [
+            dcc.Tabs(id = 'cwp-psp', value = 'psp', children = [
                 dcc.Tab(label = '우승 확률', value = 'cwp'),
                 dcc.Tab(label = '포스트시즌 진출 확률', value = 'psp')
             ]),
