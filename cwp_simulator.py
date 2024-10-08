@@ -94,12 +94,8 @@ if __name__ == '__main__':
         output_list = pool.starmap(season_simulation, [(simulation_games, win_table, draw_table, win_ratio, args.simulation_try // args.process_num)] * args.process_num)
         pool.close()
         pool.join()
-        simulation_summary = sum(output_list) / args.simulation_try
+        simulation_summary = sum(output_list) / int(output_list.iloc[0].sum())
         # 시뮬레이션 결과 저장
-        simulation_summary.index = pd.MultiIndex.from_tuples(zip([cwp_date] * 10, simulation_summary.index))
-        for sim_idx in simulation_summary.index:
-            if simulation_summary.loc[sim_idx].sum() < 1:
-                simulation_summary.loc[sim_idx, simulation_summary.loc[sim_idx].idxmax()] += 1 - simulation_summary.loc[sim_idx].sum()
         simulation_summary = simulation_summary.round(5)
         standing_probability = pd.concat([standing_probability, simulation_summary])
         standing_probability.to_pickle(args.probability_output)
