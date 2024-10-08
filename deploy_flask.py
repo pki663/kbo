@@ -36,7 +36,8 @@ team_color = {
 navbar = dbc.NavbarSimple(
     children = [
         dbc.NavLink("리그 현황", href="/", active="exact"),
-        dbc.NavLink("다음경기 분석", href="/comingup", active="exact"),
+        #dbc.NavLink("다음경기 분석", href="/comingup", active="exact"),
+        dbc.NavLink("포스트시즌", href="/postseason", active="exact"),
         dbc.NavLink("순위 분석", href="/standing", active="exact"),
         dbc.NavLink("도움말", href="/help", active='exact'),
         dbc.NavLink("KBO INSIGHT (외부 사이트)", href="https://kboinsight.com", style = {'color': 'black'})
@@ -71,6 +72,15 @@ with open('fig/standing.pkl', 'rb') as fr:
 with open('fig/comingup.pkl', 'rb') as fr:
     coming_games = pickle.load(fr)
 
+with open('fig/wc_table.pkl', 'rb') as fr:
+    wc_table = pickle.load(fr)
+with open('fig/spo_table.pkl', 'rb') as fr:
+    spo_table = pickle.load(fr)
+with open('fig/po_table.pkl', 'rb') as fr:
+    po_table = pickle.load(fr)
+with open('fig/ks_table.pkl', 'rb') as fr:
+    ks_table = pickle.load(fr)
+
 now_championship_fig = read_json(file = 'fig/now_championship_fig.json', engine = 'json')
 now_postseason_fig = read_json(file = 'fig/now_postseason_fig.json', engine = 'json')
 log5_championship_fig = read_json(file = 'fig/log5_championship_fig.json', engine = 'json')
@@ -79,6 +89,11 @@ pythagorean_championship_fig = read_json(file = 'fig/pythagorean_championship_fi
 pythagorean_postseason_fig = read_json(file = 'fig/pythagorean_postseason_fig.json', engine = 'json')
 future_championship_fig = read_json(file = 'fig/future_championship_fig.json', engine = 'json')
 future_postseason_fig = read_json(file = 'fig/future_postseason_fig.json', engine = 'json')
+
+wc_fig = read_json(file = 'fig/wc_fig.json', engine = 'json')
+spo_fig = read_json(file = 'fig/spo_fig.json', engine = 'json')
+po_fig = read_json(file = 'fig/po_fig.json', engine = 'json')
+ks_fig = read_json(file = 'fig/ks_fig.json', engine = 'json')
 
 @app.callback(Output("page-content", "children"), Input("url", "pathname"))
 def render_page_content(pathname):
@@ -130,6 +145,19 @@ def render_page_content(pathname):
             ]),
             html.Div(id = 'tutorial-contents', style = {'width': '100%'})
         ])
+    elif pathname == '/postseason':
+        return html.Div([
+            html.H3("포스트시즌"),
+            html.Div('각 확률은 Log5 probability를 이용해 계산되었습니다.'),
+            dcc.Tabs(id = 'postseason-stage', value = 'spo', children = [
+                dcc.Tab(label = '와일드카드 결정전', value = 'wc'),
+                dcc.Tab(label = '준플레이오프', value = 'spo'),
+                dcc.Tab(label = '플레이오프', value = 'po'),
+                dcc.Tab(label = '한국시리즈', value = 'ks')
+            ]),
+            dcc.Graph(id = 'postseason-fig', config={'modeBarButtonsToRemove': ['select', 'lasso2d', 'autoScale'], 'displayModeBar': True, 'toImageButtonOptions': {'format': 'webp'}}),
+            html.Div(id = 'postseason-contents')
+        ])
     # If the user tries to reach a different page, return a 404 message
     return html.Div(
         [
@@ -139,6 +167,19 @@ def render_page_content(pathname):
         ],
         className="p-3 bg-light rounded-3",
     )
+
+@app.callback(Output("postseason-fig", 'figure'), Input("postseason-stage", 'value'))
+def render_postseason_figure(fig_selection):
+    if fig_selection == 'wc':
+        return wc_fig
+    elif fig_selection == 'spo':
+        return spo_fig
+    elif fig_selection == 'po':
+        return po_fig
+    elif fig_selection == 'ks':
+        return ks_fig
+    else:
+        return
 
 @app.callback(Output("now-fig", 'figure'), [Input("cwp-psp", 'value'), Input("now-ratio-type", 'value')])
 def render_now_figure(fig_selection, ratio_selection):
@@ -303,6 +344,19 @@ def show_tutorial(request_index):
                 html.Div('④ 우측 범례를 통해 그래프의 각 색깔이 몇 위 또는 어떤 팀을 의미하는지 확인할 수 있습니다. 각 범례를 클릭하면 그래프에서 보여줄 지 여부를 설정할 수 있습니다.')
             ])
         ]
+    else:
+        return []
+
+@app.callback(Output("postseason-contents", 'children'), Input("postseason-stage", 'value'))
+def show_tutorial(request_index):
+    if request_index == 'wc':
+        return wc_table
+    elif request_index == 'spo':
+        return spo_table
+    elif request_index == 'po':
+        return po_table
+    elif request_index == 'ks':
+        return ks_table
     else:
         return []
 
