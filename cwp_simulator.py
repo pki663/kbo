@@ -97,6 +97,10 @@ if __name__ == '__main__':
         simulation_summary = sum(output_list) / args.simulation_try
         # 시뮬레이션 결과 저장
         simulation_summary.index = pd.MultiIndex.from_tuples(zip([cwp_date] * 10, simulation_summary.index))
+        for sim_idx in simulation_summary.index:
+            if simulation_summary.loc[sim_idx].sum() < 1:
+                simulation_summary.loc[sim_idx, simulation_summary.loc[sim_idx].idxmax()] += 1 - simulation_summary.loc[sim_idx].sum()
+        simulation_summary = simulation_summary.round(5)
         standing_probability = pd.concat([standing_probability, simulation_summary])
         standing_probability.to_pickle(args.probability_output)
     # cLI 시뮬레이션 시행
