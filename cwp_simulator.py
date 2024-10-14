@@ -9,7 +9,7 @@ from tqdm import tqdm
 pd.set_option('future.no_silent_downcasting', True)
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-n", "--numsimulation", dest = 'simulation_try', action = 'store', type = int, default = 25000)
+parser.add_argument("-n", "--numsimulation", dest = 'simulation_try', action = 'store', type = int, default = 20000)
 parser.add_argument("-p", "--processes", dest = 'process_num', action = 'store', type = int, default = 4)
 parser.add_argument("--winratio", dest = 'winratio', action = 'store', type = str, default = 'uniform')
 parser.add_argument('--game_path', dest = 'game_path', action = 'store', type = str, required = True)
