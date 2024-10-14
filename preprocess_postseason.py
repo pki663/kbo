@@ -33,10 +33,6 @@ def postseason_ratio(winto, team_ratio, team_win = 0, opponent_win = 0):
 
 
 '''
-po_fig = go.Figure(layout = go.Layout(hovermode = 'x'))
-po_fig.update_xaxes(title_text = '게임 수', range = [0, 5], fixedrange = True, dtick = 1)
-po_fig.update_yaxes(range = [0, 1], fixedrange = True, tickformat = ',.3%')
-po_fig.update_layout(title_text = '진출 확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50, plot_bgcolor='#D9F2D0', paper_bgcolor="#DFDFDF")
 ks_fig = go.Figure(layout = go.Layout(hovermode = 'x'))
 ks_fig.update_xaxes(title_text = '게임 수', range = [0, 7], fixedrange = True, dtick = 1)
 ks_fig.update_yaxes(range = [0, 1], fixedrange = True, tickformat = ',.3%')
