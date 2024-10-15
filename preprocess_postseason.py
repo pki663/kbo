@@ -227,7 +227,7 @@ po_fig.update_yaxes(range = [0, 1], fixedrange = True, tickformat = ',.3%')
 po_fig.update_layout(title_text = '진출 확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50, plot_bgcolor='#D9F2D0', paper_bgcolor="#DFDFDF")
 
 ss_gamewin = log5(78/142, 76/142)
-po_result = [(0,0), (1,0)]
+po_result = [(0,0), (1,0), (2,0)]
 po_fig.add_traces([
     go.Scatter(
         name = '삼성', 
@@ -359,16 +359,16 @@ po_initial['삼성 진출'] = format(sum([y for x, y in postseason_ratio(3, log5
 po_initial['LG 진출'] = format(sum([y for x, y in postseason_ratio(3, log5(78/142, 76/142), 0, 0).items() if x[1] == 3]), '.3%')
 
 po_now = {'(삼성-LG)': '현재'}
-po_now.update({'-'.join(list(map(str, x))): format(y, ".3%") for x, y in postseason_ratio(3, log5(78/142, 76/142), 1, 0).items()})
-po_now['삼성 진출'] = format(sum([y for x, y in postseason_ratio(3, log5(78/142, 76/142), 1, 0).items() if x[0] == 3]), '.3%')
-po_now['LG 진출'] = format(sum([y for x, y in postseason_ratio(3, log5(78/142, 76/142), 1, 0).items() if x[1] == 3]), '.3%')
+po_now.update({'-'.join(list(map(str, x))): format(y, ".3%") for x, y in postseason_ratio(3, log5(78/142, 76/142), 2, 0).items()})
+po_now['삼성 진출'] = format(sum([y for x, y in postseason_ratio(3, log5(78/142, 76/142), 2, 0).items() if x[0] == 3]), '.3%')
+po_now['LG 진출'] = format(sum([y for x, y in postseason_ratio(3, log5(78/142, 76/142), 2, 0).items() if x[1] == 3]), '.3%')
 
 po_probability = dash_table.DataTable([po_initial, po_now],
     [{'name': i, 'id': i} for i in ['(삼성-LG)', '3-0', '3-1', '3-2', '삼성 진출', '0-3', '1-3', '2-3', 'LG 진출']],
     style_cell_conditional=[
         {'if': {'column_id': ['삼성 진출', 'LG 진출']}, 'border-left': '2px solid black' , 'border-right': '4px solid black'},
         {'if': {'column_id': ['(삼성-???)']}, 'border-right': '4px solid black'},
-        {'if': {'column_id': ['0-3']}, 'backgroundColor': '#C0C0C0'}],
+        {'if': {'column_id': ['0-3', '1-3']}, 'backgroundColor': '#C0C0C0'}],
     style_header = {'text-align': 'center', 'fontWeight': 'bold'},
     style_data = {'text-align': 'center', 'padding': '3px'},
     style_table={'margin-left': 'auto', 'margin-right': 'auto', 'margin-top': '10px', 'margin-bottom': '10px', 'width': '100%', 'max-width': '800px', 'overflowX': 'auto'}
