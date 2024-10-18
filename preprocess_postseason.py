@@ -31,14 +31,7 @@ def postseason_ratio(winto, team_ratio, team_win = 0, opponent_win = 0):
     result.update({(team_win + x, winto): opponent_ratio ** opponent_rest * team_ratio ** x * math.comb(opponent_rest + x - 1, opponent_rest - 1) for x in range(team_rest)})
     return result
 
-
 '''
-ks_fig = go.Figure(layout = go.Layout(hovermode = 'x'))
-ks_fig.update_xaxes(title_text = '게임 수', range = [0, 7], fixedrange = True, dtick = 1)
-ks_fig.update_yaxes(range = [0, 1], fixedrange = True, tickformat = ',.3%')
-ks_fig.update_layout(title_text = '진출 확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50, plot_bgcolor='#D9F2D0', paper_bgcolor="#DFDFDF")
-'''
-
 # Wildcard
 wc_fig = go.Figure(layout = go.Layout(hovermode = 'x'))
 wc_fig.update_xaxes(title_text = '게임 수', range = [0, 2], fixedrange = True, dtick = 1)
@@ -219,6 +212,7 @@ if (spo_result[-1][0] != 3) and (spo_result[-1][1] != 3):
             legendgroup = 'kt', hoverinfo='skip', showlegend= False, visible = 'legendonly'
         )
     ])
+'''
 
 # Playoff
 po_fig = go.Figure(layout = go.Layout(hovermode = 'x'))
@@ -311,13 +305,19 @@ if (po_result[-1][0] != 3) and (po_result[-1][1] != 3):
     ])
 
 # Korean Series
+'''
+ks_fig = go.Figure(layout = go.Layout(hovermode = 'x'))
+ks_fig.update_xaxes(title_text = '게임 수', range = [0, 7], fixedrange = True, dtick = 1)
+ks_fig.update_yaxes(range = [0, 1], fixedrange = True, tickformat = ',.3%')
+ks_fig.update_layout(title_text = '진출 확률', margin_l=10, margin_r=10, margin_b=10, margin_t=50, plot_bgcolor='#D9F2D0', paper_bgcolor="#DFDFDF")
+'''
 
-
-write_json(wc_fig, file = 'fig/wc_fig.json', engine = 'json')
-write_json(spo_fig, file = 'fig/spo_fig.json', engine = 'json')
+#write_json(wc_fig, file = 'fig/wc_fig.json', engine = 'json')
+#write_json(spo_fig, file = 'fig/spo_fig.json', engine = 'json')
 write_json(po_fig, file = 'fig/po_fig.json', engine = 'json')
 #write_json(ks_fig, file = 'fig/ks_fig.json', engine = 'json')
 
+'''
 # 표 제작
 # Wildcard
 wc_dict = {'(두산-kt)': '확률'}
@@ -351,29 +351,31 @@ spo_probability = dash_table.DataTable([spo_dict],
     style_data = {'text-align': 'center', 'padding': '3px'},
     style_table={'margin-left': 'auto', 'margin-right': 'auto', 'margin-top': '10px', 'margin-bottom': '10px', 'width': '100%', 'max-width': '800px', 'overflowX': 'auto'}
 )
+'''
 
 # Playoff
 po_initial = {'(삼성-LG)': '시리즈 초기'}
-po_initial.update({'-'.join(list(map(str, x))): format(y, ".3%") for x, y in postseason_ratio(3, log5(78/142, 76/142), 0, 0).items()})
-po_initial['삼성 진출'] = format(sum([y for x, y in postseason_ratio(3, log5(78/142, 76/142), 0, 0).items() if x[0] == 3]), '.3%')
-po_initial['LG 진출'] = format(sum([y for x, y in postseason_ratio(3, log5(78/142, 76/142), 0, 0).items() if x[1] == 3]), '.3%')
+po_initial.update({'-'.join(list(map(str, x))): format(y, ".3%") for x, y in postseason_ratio(3, ss_gamewin, 0, 0).items()})
+po_initial['삼성 진출'] = format(sum([y for x, y in postseason_ratio(3, ss_gamewin, 0, 0).items() if x[0] == 3]), '.3%')
+po_initial['LG 진출'] = format(sum([y for x, y in postseason_ratio(3, ss_gamewin, 0, 0).items() if x[1] == 3]), '.3%')
 
 po_now = {'(삼성-LG)': '현재'}
-po_now.update({'-'.join(list(map(str, x))): format(y, ".3%") for x, y in postseason_ratio(3, log5(78/142, 76/142), 2, 1).items()})
-po_now['삼성 진출'] = format(sum([y for x, y in postseason_ratio(3, log5(78/142, 76/142), 2, 1).items() if x[0] == 3]), '.3%')
-po_now['LG 진출'] = format(sum([y for x, y in postseason_ratio(3, log5(78/142, 76/142), 2, 1).items() if x[1] == 3]), '.3%')
+po_now.update({'-'.join(list(map(str, x))): format(y, ".3%") for x, y in postseason_ratio(3, ss_gamewin, po_result[-1][0], po_result[-1][1]).items()})
+po_now['삼성 진출'] = format(sum([y for x, y in postseason_ratio(3, ss_gamewin, po_result[-1][0], po_result[-1][1]).items() if x[0] == 3]), '.3%')
+po_now['LG 진출'] = format(sum([y for x, y in postseason_ratio(3, ss_gamewin, po_result[-1][0], po_result[-1][1]).items() if x[1] == 3]), '.3%')
 
 po_probability = dash_table.DataTable([po_initial, po_now],
     [{'name': i, 'id': i} for i in ['(삼성-LG)', '3-0', '3-1', '3-2', '삼성 진출', '0-3', '1-3', '2-3', 'LG 진출']],
     style_cell_conditional=[
         {'if': {'column_id': ['삼성 진출', 'LG 진출']}, 'border-left': '2px solid black' , 'border-right': '4px solid black'},
         {'if': {'column_id': ['(삼성-???)']}, 'border-right': '4px solid black'},
-        {'if': {'column_id': ['0-3', '1-3', '3-0']}, 'backgroundColor': '#C0C0C0'}],
+        {'if': {'column_id': [x for x in ['(삼성-LG)', '3-0', '3-1', '3-2', '삼성 진출', '0-3', '1-3', '2-3', 'LG 진출'] if x not in po_now.keys()]}, 'backgroundColor': '#C0C0C0'}],
     style_header = {'text-align': 'center', 'fontWeight': 'bold'},
     style_data = {'text-align': 'center', 'padding': '3px'},
     style_table={'margin-left': 'auto', 'margin-right': 'auto', 'margin-top': '10px', 'margin-bottom': '10px', 'width': '100%', 'max-width': '800px', 'overflowX': 'auto'}
 )
 
+'''
 # Korean Series
 ks_ss = {'(KIA-???)': '삼성'}
 ks_ss.update({'-'.join(list(map(str, x))): format(y, ".3%") for x, y in postseason_ratio(4, log5(87/142, 78/142), 0, 0).items()})
@@ -394,12 +396,17 @@ ks_probability = dash_table.DataTable([ks_ss, ks_lg],
     style_data = {'text-align': 'center', 'padding': '3px'},
     style_table={'margin-left': 'auto', 'margin-right': 'auto', 'margin-top': '10px', 'margin-bottom': '10px', 'width': '100%', 'max-width': '800px', 'overflowX': 'auto'}
 )
+'''
 
+'''
 with open('fig/wc_table.pkl', 'wb') as fw:
     pickle.dump(obj = wc_probability, file = fw)
 with open('fig/spo_table.pkl', 'wb') as fw:
     pickle.dump(obj = spo_probability, file = fw)
+'''
 with open('fig/po_table.pkl', 'wb') as fw:
     pickle.dump(obj = po_probability, file = fw)
+'''
 with open('fig/ks_table.pkl', 'wb') as fw:
     pickle.dump(obj = ks_probability, file = fw)
+'''
