@@ -149,7 +149,7 @@ def render_page_content(pathname):
         return html.Div([
             html.H3("포스트시즌"),
             html.Div('각 확률은 Log5 probability를 이용해 계산되었습니다.'),
-            dcc.Tabs(id = 'postseason-stage', value = 'po', children = [
+            dcc.Tabs(id = 'postseason-stage', value = 'ks', children = [
                 dcc.Tab(label = '와일드카드 결정전', value = 'wc'),
                 dcc.Tab(label = '준플레이오프', value = 'spo'),
                 dcc.Tab(label = '플레이오프', value = 'po'),

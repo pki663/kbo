@@ -212,7 +212,6 @@ if (spo_result[-1][0] != 3) and (spo_result[-1][1] != 3):
             legendgroup = 'kt', hoverinfo='skip', showlegend= False, visible = 'legendonly'
         )
     ])
-'''
 
 # Playoff
 po_fig = go.Figure(layout = go.Layout(hovermode = 'x'))
@@ -303,11 +302,11 @@ if (po_result[-1][0] != 3) and (po_result[-1][1] != 3):
             legendgroup = 'LG', hoverinfo='skip', showlegend= False, visible = 'legendonly'
         )
     ])
-
+'''
 # Korean Series
 kia_gamewin = log5(87/142, 78/142)
 ks_result = [(0,0)]
-'''
+
 ks_fig = go.Figure(layout = go.Layout(hovermode = 'x'))
 ks_fig.update_xaxes(title_text = '게임 수', range = [0, 7], fixedrange = True, dtick = 1)
 ks_fig.update_yaxes(range = [0, 1], fixedrange = True, tickformat = ',.3%')
@@ -393,15 +392,13 @@ if (ks_result[-1][0] != 3) and (ks_result[-1][1] != 3):
             legendgroup = '삼성', hoverinfo='skip', showlegend= False, visible = 'legendonly'
         )
     ])
-'''
-
 #write_json(wc_fig, file = 'fig/wc_fig.json', engine = 'json')
 #write_json(spo_fig, file = 'fig/spo_fig.json', engine = 'json')
-write_json(po_fig, file = 'fig/po_fig.json', engine = 'json')
-#write_json(ks_fig, file = 'fig/ks_fig.json', engine = 'json')
+#write_json(po_fig, file = 'fig/po_fig.json', engine = 'json')
+write_json(ks_fig, file = 'fig/ks_fig.json', engine = 'json')
 
-'''
 # 표 제작
+'''
 # Wildcard
 wc_dict = {'(두산-kt)': '확률'}
 wc_dict.update({'-'.join(list(map(str, x))): format(y, ".3%") for x, y in postseason_ratio(2, ds_gamewin, 1, 0).items()})
@@ -434,7 +431,6 @@ spo_probability = dash_table.DataTable([spo_dict],
     style_data = {'text-align': 'center', 'padding': '3px'},
     style_table={'margin-left': 'auto', 'margin-right': 'auto', 'margin-top': '10px', 'margin-bottom': '10px', 'width': '100%', 'max-width': '800px', 'overflowX': 'auto'}
 )
-'''
 
 # Playoff
 po_dict = {'(삼성-LG)': '확률'}
@@ -452,6 +448,7 @@ po_probability = dash_table.DataTable([po_dict],
     style_data = {'text-align': 'center', 'padding': '3px'},
     style_table={'margin-left': 'auto', 'margin-right': 'auto', 'margin-top': '10px', 'margin-bottom': '10px', 'width': '100%', 'max-width': '800px', 'overflowX': 'auto'}
 )
+'''
 
 # Korean Series
 ks_initial = {'(KIA-삼성)': '시리즈 초기'}
@@ -474,14 +471,13 @@ ks_probability = dash_table.DataTable([ks_initial, ks_now],
     style_data = {'text-align': 'center', 'padding': '3px'},
     style_table={'margin-left': 'auto', 'margin-right': 'auto', 'margin-top': '10px', 'margin-bottom': '10px', 'width': '100%', 'max-width': '800px', 'overflowX': 'auto'}
 )
-
 '''
 with open('fig/wc_table.pkl', 'wb') as fw:
     pickle.dump(obj = wc_probability, file = fw)
 with open('fig/spo_table.pkl', 'wb') as fw:
     pickle.dump(obj = spo_probability, file = fw)
-'''
 with open('fig/po_table.pkl', 'wb') as fw:
     pickle.dump(obj = po_probability, file = fw)
+'''    
 with open('fig/ks_table.pkl', 'wb') as fw:
     pickle.dump(obj = ks_probability, file = fw)
