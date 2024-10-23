@@ -305,7 +305,7 @@ if (po_result[-1][0] != 3) and (po_result[-1][1] != 3):
 '''
 # Korean Series
 kia_gamewin = log5(87/142, 78/142)
-ks_result = [(0,0), (1,0)]
+ks_result = [(0,0), (1,0), (2,0)]
 
 ks_fig = go.Figure(layout = go.Layout(hovermode = 'x'))
 ks_fig.update_xaxes(title_text = '게임 수', range = [0, 7], fixedrange = True, dtick = 1)
@@ -466,7 +466,7 @@ ks_probability = dash_table.DataTable([ks_initial, ks_now],
     style_cell_conditional=[
         {'if': {'column_id': ['KIA 우승', '삼성 우승']}, 'border-left': '2px solid black' , 'border-right': '4px solid black'},
         {'if': {'column_id': ['(삼성-???)']}, 'border-right': '4px solid black'},
-        {'if': {'column_id': [x for x in ['(KIA-삼성)', '3-0', '3-1', '3-2', 'KIA 우승', '0-3', '1-3', '2-3', '삼성 우승'] if x not in ks_now.keys()]}, 'backgroundColor': '#C0C0C0'}],
+        {'if': {'column_id': [x for x in ['(KIA-삼성)', '4-0', '4-1', '4-2', '4-3', 'KIA 우승', '0-4', '1-4', '2-4', '3-4', '삼성 우승'] if x not in ks_now.keys()]}, 'backgroundColor': '#C0C0C0'}],
     style_header = {'text-align': 'center', 'fontWeight': 'bold'},
     style_data = {'text-align': 'center', 'padding': '3px'},
     style_table={'margin-left': 'auto', 'margin-right': 'auto', 'margin-top': '10px', 'margin-bottom': '10px', 'width': '100%', 'max-width': '800px', 'overflowX': 'auto'}
