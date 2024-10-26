@@ -305,7 +305,7 @@ if (po_result[-1][0] != 3) and (po_result[-1][1] != 3):
 '''
 # Korean Series
 kia_gamewin = log5(87/142, 78/142)
-ks_result = [(0,0), (1,0), (2,0)]
+ks_result = [(0,0), (1,0), (2,0), (2,1)]
 
 ks_fig = go.Figure(layout = go.Layout(hovermode = 'x'))
 ks_fig.update_xaxes(title_text = '게임 수', range = [0, 7], fixedrange = True, dtick = 1)
