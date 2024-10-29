@@ -305,7 +305,7 @@ if (po_result[-1][0] != 3) and (po_result[-1][1] != 3):
 '''
 # Korean Series
 kia_gamewin = log5(87/142, 78/142)
-ks_result = [(0,0), (1,0), (2,0), (2,1), (3,1)]
+ks_result = [(0,0), (1,0), (2,0), (2,1), (3,1), (4,1)]
 
 ks_fig = go.Figure(layout = go.Layout(hovermode = 'x'))
 ks_fig.update_xaxes(title_text = '게임 수', range = [0, 7], fixedrange = True, dtick = 1)
@@ -353,7 +353,7 @@ for idx, (prev, next) in enumerate(zip(ks_result[:-1], ks_result[1:])):
         )
     ])
 
-if (ks_result[-1][0] != 3) and (ks_result[-1][1] != 3):
+if (ks_result[-1][0] != 4) and (ks_result[-1][1] != 4):
     ks_fig.add_traces([
         go.Scatter(
             x = [len(ks_result) - 1, len(ks_result)],
@@ -451,22 +451,17 @@ po_probability = dash_table.DataTable([po_dict],
 '''
 
 # Korean Series
-ks_initial = {'(KIA-삼성)': '시리즈 초기'}
-ks_initial.update({'-'.join(list(map(str, x))): format(y, ".3%") for x, y in postseason_ratio(4, kia_gamewin, 0, 0).items()})
-ks_initial['KIA 우승'] = format(sum([y for x, y in postseason_ratio(4, kia_gamewin, 0, 0).items() if x[0] == 4]), '.3%')
-ks_initial['삼성 우승'] = format(sum([y for x, y in postseason_ratio(4, kia_gamewin, 0, 0).items() if x[1] == 4]), '.3%')
+ks_dict = {'(KIA-삼성)': '확률'}
+ks_dict.update({'-'.join(list(map(str, x))): format(y, ".3%") for x, y in postseason_ratio(4, kia_gamewin, 0, 0).items()})
+ks_dict['KIA 우승'] = format(sum([y for x, y in postseason_ratio(4, kia_gamewin, 0, 0).items() if x[0] == 4]), '.3%')
+ks_dict['삼성 우승'] = format(sum([y for x, y in postseason_ratio(4, kia_gamewin, 0, 0).items() if x[1] == 4]), '.3%')
 
-ks_now = {'(KIA-삼성)': '현재'}
-ks_now.update({'-'.join(list(map(str, x))): format(y, ".3%") for x, y in postseason_ratio(4, kia_gamewin, ks_result[-1][0], ks_result[-1][1]).items()})
-ks_now['KIA 우승'] = format(sum([y for x, y in postseason_ratio(4, kia_gamewin, ks_result[-1][0], ks_result[-1][1]).items() if x[0] == 4]), '.3%')
-ks_now['삼성 우승'] = format(sum([y for x, y in postseason_ratio(4, kia_gamewin, ks_result[-1][0], ks_result[-1][1]).items() if x[1] == 4]), '.3%')
-
-ks_probability = dash_table.DataTable([ks_initial, ks_now],
+ks_probability = dash_table.DataTable([ks_dict],
     [{'name': i, 'id': i} for i in ['(KIA-삼성)', '4-0', '4-1', '4-2', '4-3', 'KIA 우승', '0-4', '1-4', '2-4', '3-4', '삼성 우승']],
     style_cell_conditional=[
+        {'if': {'column_id': ['4-1', 'KIA 우승']}, 'fontWeight': 'bold', 'backgroundColor': '#BEF5CE'},
         {'if': {'column_id': ['KIA 우승', '삼성 우승']}, 'border-left': '2px solid black' , 'border-right': '4px solid black'},
-        {'if': {'column_id': ['(삼성-???)']}, 'border-right': '4px solid black'},
-        {'if': {'column_id': [x for x in ['(KIA-삼성)', '4-0', '4-1', '4-2', '4-3', 'KIA 우승', '0-4', '1-4', '2-4', '3-4', '삼성 우승'] if x not in ks_now.keys()]}, 'backgroundColor': '#C0C0C0'}],
+        {'if': {'column_id': ['(KIA-삼성)']}, 'border-right': '4px solid black'}],
     style_header = {'text-align': 'center', 'fontWeight': 'bold'},
     style_data = {'text-align': 'center', 'padding': '3px'},
     style_table={'margin-left': 'auto', 'margin-right': 'auto', 'margin-top': '10px', 'margin-bottom': '10px', 'width': '100%', 'max-width': '800px', 'overflowX': 'auto'}
