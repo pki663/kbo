@@ -10,15 +10,15 @@ import math
 import os
 
 team_color = {
+    'KIA':['#EA0029', '#06141F'],
+    '삼성':['#C0C0C0', '#074CA1'],
     'LG':['#C30452', '#000000'],
+    '두산':['#FFFFFF', '#131230'],
     'KT':['#000000', '#EB1C24'],
     'SSG':['#ffb81c', '#CE0E2D'],
-    'NC':['#c7a079', '#071d3d'],
-    '두산':['#FFFFFF', '#131230'],
-    'KIA':['#EA0029', '#06141F'],
     '롯데':['#6CACE4', '#D00F31'],
-    '삼성':['#C0C0C0', '#074CA1'],
     '한화':['#f37321', '#25282a'],
+    'NC':['#c7a079', '#071d3d'],
     '키움':['#570514', '#B07F4A']
 }
 
@@ -35,7 +35,7 @@ if os.path.isfile('fig/now_championship_fig.json'):
     prev = read_json(file = 'fig/now_championship_fig.json', engine = 'json')
     if prev.layout.xaxis.range[-1] == days_list[-1].isoformat():
         sys.exit(0)
-
+        
 now_championship_fig = go.Figure(layout = go.Layout(hovermode='x'))
 now_postseason_fig = go.Figure(layout = go.Layout(hovermode='x'))
 # if want rangeslider, add rangeslider = {'range' : [days_list[0], days_list[-1]]}

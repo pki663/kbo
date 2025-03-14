@@ -24,7 +24,7 @@ parser.add_argument('--cli_output', dest = 'cli_output', action = 'store', type 
 args = parser.parse_args()
 
 games_df = pd.read_pickle(args.game_path)
-team_list = ['LG', 'KT', 'SSG', 'NC', '두산', 'KIA', '롯데', '삼성', '한화', '키움']
+team_list = ['KIA', '삼성', 'LG', '두산', 'KT', 'SSG', '롯데', '한화', 'NC', '키움']
 initial_table = pd.DataFrame(0, index = team_list, columns = team_list)
 
 standing_probability = pd.read_pickle(args.probability_path) if args.probability_path else pd.DataFrame(

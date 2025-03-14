@@ -36,8 +36,8 @@ team_color = {
 navbar = dbc.NavbarSimple(
     children = [
         dbc.NavLink("리그 현황", href="/", active="exact"),
-        #dbc.NavLink("다음경기 분석", href="/comingup", active="exact"),
-        dbc.NavLink("포스트시즌", href="/postseason", active="exact"),
+        dbc.NavLink("다음경기 분석", href="/comingup", active="exact"),
+        #dbc.NavLink("포스트시즌", href="/postseason", active="exact"),
         dbc.NavLink("순위 분석", href="/standing", active="exact"),
         dbc.NavLink("도움말", href="/help", active='exact'),
         dbc.NavLink("KBO INSIGHT (외부 사이트)", href="https://kboinsight.com", style = {'color': 'black'})
@@ -72,6 +72,7 @@ with open('fig/standing.pkl', 'rb') as fr:
 with open('fig/comingup.pkl', 'rb') as fr:
     coming_games = pickle.load(fr)
 
+'''
 with open('fig/wc_table.pkl', 'rb') as fr:
     wc_table = pickle.load(fr)
 with open('fig/spo_table.pkl', 'rb') as fr:
@@ -80,6 +81,7 @@ with open('fig/po_table.pkl', 'rb') as fr:
     po_table = pickle.load(fr)
 with open('fig/ks_table.pkl', 'rb') as fr:
     ks_table = pickle.load(fr)
+'''
 
 now_championship_fig = read_json(file = 'fig/now_championship_fig.json', engine = 'json')
 now_postseason_fig = read_json(file = 'fig/now_postseason_fig.json', engine = 'json')
@@ -90,10 +92,12 @@ pythagorean_postseason_fig = read_json(file = 'fig/pythagorean_postseason_fig.js
 future_championship_fig = read_json(file = 'fig/future_championship_fig.json', engine = 'json')
 future_postseason_fig = read_json(file = 'fig/future_postseason_fig.json', engine = 'json')
 
+'''
 wc_fig = read_json(file = 'fig/wc_fig.json', engine = 'json')
 spo_fig = read_json(file = 'fig/spo_fig.json', engine = 'json')
 po_fig = read_json(file = 'fig/po_fig.json', engine = 'json')
 ks_fig = read_json(file = 'fig/ks_fig.json', engine = 'json')
+'''
 
 @app.callback(Output("page-content", "children"), Input("url", "pathname"))
 def render_page_content(pathname):
@@ -101,7 +105,7 @@ def render_page_content(pathname):
         return html.Div([
             html.H2(today.strftime('%m월 %d일') + " 경기 종료 후 상황"),
             html.Hr(),
-            dcc.Tabs(id = 'cwp-psp', value = 'psp', children = [
+            dcc.Tabs(id = 'cwp-psp', value = 'cwp', children = [
                 dcc.Tab(label = '우승 확률', value = 'cwp'),
                 dcc.Tab(label = '포스트시즌 진출 확률', value = 'psp')
             ]),
@@ -113,7 +117,7 @@ def render_page_content(pathname):
         return html.Div([
             html.H2("다음 경기 예고"),
             html.Hr(),
-            dcc.Tabs(id = 'cwli-psli', value = 'psli', children = [
+            dcc.Tabs(id = 'cwli-psli', value = 'cwli', children = [
                 dcc.Tab(label = '우승 확률 변화', value = 'cwli'),
                 dcc.Tab(label = '포스트시즌 진출 확률 변화', value = 'psli')
             ]),
@@ -145,6 +149,7 @@ def render_page_content(pathname):
             ]),
             html.Div(id = 'tutorial-contents', style = {'width': '100%'})
         ])
+    '''
     elif pathname == '/postseason':
         return html.Div([
             html.H3("포스트시즌"),
@@ -158,6 +163,7 @@ def render_page_content(pathname):
             dcc.Graph(id = 'postseason-fig', config={'modeBarButtonsToRemove': ['select', 'lasso2d', 'autoScale'], 'displayModeBar': True, 'toImageButtonOptions': {'format': 'webp'}}),
             html.Div(id = 'postseason-contents')
         ])
+    '''    
     # If the user tries to reach a different page, return a 404 message
     return html.Div(
         [
@@ -168,6 +174,7 @@ def render_page_content(pathname):
         className="p-3 bg-light rounded-3",
     )
 
+'''
 @app.callback(Output("postseason-fig", 'figure'), Input("postseason-stage", 'value'))
 def render_postseason_figure(fig_selection):
     if fig_selection == 'wc':
@@ -180,6 +187,7 @@ def render_postseason_figure(fig_selection):
         return ks_fig
     else:
         return
+'''
 
 @app.callback(Output("now-fig", 'figure'), [Input("cwp-psp", 'value'), Input("now-ratio-type", 'value')])
 def render_now_figure(fig_selection, ratio_selection):
@@ -347,6 +355,7 @@ def show_tutorial(request_index):
     else:
         return []
 
+'''
 @app.callback(Output("postseason-contents", 'children'), Input("postseason-stage", 'value'))
 def show_tutorial(request_index):
     if request_index == 'wc':
@@ -359,6 +368,7 @@ def show_tutorial(request_index):
         return ks_table
     else:
         return []
+'''
 
 if __name__ == '__main__':
     application.run()
