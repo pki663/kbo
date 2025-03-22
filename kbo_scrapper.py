@@ -22,6 +22,7 @@ else:
     from selenium.webdriver.edge.service import Service
     from selenium.webdriver.edge.options import Options
     options = Options()
+    options.add_argument('--edge-skip-compat-layer-relaunch')
     driver = webdriver.Edge(service = Service(EdgeChromiumDriverManager().install()), options=options)
 
 driver.implicitly_wait(3)
