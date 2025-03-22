@@ -40,7 +40,8 @@ navbar = dbc.NavbarSimple(
         #dbc.NavLink("포스트시즌", href="/postseason", active="exact"),
         dbc.NavLink("순위 분석", href="/standing", active="exact"),
         dbc.NavLink("도움말", href="/help", active='exact'),
-        dbc.NavLink("KBO INSIGHT (외부 사이트)", href="https://kboinsight.com", style = {'color': 'black'})
+        dbc.NavLink("KBO INSIGHT (외부 사이트)", href="https://kboinsight.com", style = {'color': 'black'}),
+        dbc.NavLink("지난시즌 기록", href="https://drive.google.com/drive/folders/1sxrAgxd9IHUVYl3clxmBc2g_i4olaHPn?usp=drive_link", style = {'color': 'black'})
     ],
     fluid = True,
     brand='크보그래프',
