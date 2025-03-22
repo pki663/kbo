@@ -94,9 +94,10 @@ if __name__ == '__main__':
         output_list = pool.starmap(season_simulation, [(simulation_games, win_table, draw_table, win_ratio, args.simulation_try // args.process_num)] * args.process_num)
         pool.close()
         pool.join()
-        simulation_summary = sum(output_list) / int(output_list.iloc[0].sum())
+        simulation_summary = sum(output_list) / args.simulation_try
         # 시뮬레이션 결과 저장
         simulation_summary = simulation_summary.round(5)
+        simulation_summary.index = pd.MultiIndex.from_tuples(list(zip(*[[cwp_date]*10, team_list])))
         standing_probability = pd.concat([standing_probability, simulation_summary])
         standing_probability.to_pickle(args.probability_output)
     # cLI 시뮬레이션 시행
