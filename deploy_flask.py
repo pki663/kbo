@@ -40,12 +40,12 @@ navbar = dbc.NavbarSimple(
         #dbc.NavLink("포스트시즌", href="/postseason", active="exact"),
         dbc.NavLink("순위 분석", href="/standing", active="exact"),
         dbc.NavLink("도움말", href="/help", active='exact'),
-        dbc.NavLink("KBO INSIGHT (외부 사이트)", href="https://kboinsight.com", style = {'color': 'black'}),
-        dbc.NavLink("지난시즌 기록", href="https://drive.google.com/drive/folders/1sxrAgxd9IHUVYl3clxmBc2g_i4olaHPn?usp=drive_link", style = {'color': 'black'})
+        dbc.NavLink("KBO INSIGHT (외부 사이트)", href="https://kboinsight.com", style = {'color': 'white'}),
+        dbc.NavLink("지난시즌 기록", href="https://drive.google.com/drive/folders/1sxrAgxd9IHUVYl3clxmBc2g_i4olaHPn?usp=drive_link", style = {'color': 'white'})
     ],
     fluid = True,
     brand='크보그래프',
-    color='primary',
+    color='black',
     dark = True,
     sticky = 'top',
     style = {
@@ -123,9 +123,9 @@ def render_page_content(pathname):
                 dcc.Tab(label = '포스트시즌 진출 확률 변화', value = 'psli')
             ]),
             dcc.Graph(id = 'future-fig', config={'modeBarButtonsToRemove': ['select', 'lasso2d', 'autoScale'], 'displayModeBar': True, 'toImageButtonOptions': {'format': 'webp'}}),
-            html.H2("다음 경기 요약"),
-            html.H3(coming['date'].iloc[0].isoformat(), style={'text-align':'center'})
-        ] + coming_games if len(coming) else [html.H2("시즌이 종료되었습니다.")])
+            html.H2("창원 NC파크에서 발생한 사고로 인한 피해자의 명복을 빕니다.", style = {'text-align': 'center'}),
+            html.H4("추모로 인한 리그 중지 기간에는 경기 예고를 제공하지 않습니다.", style = {'text-align': 'center'})
+        ])
     elif pathname == "/standing":
         return html.Div([
             html.H3("팀 별 시즌 중 순위 확률 변화 분석"),
