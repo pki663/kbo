@@ -124,7 +124,7 @@ def render_page_content(pathname):
             ]),
             dcc.Graph(id = 'future-fig', config={'modeBarButtonsToRemove': ['select', 'lasso2d', 'autoScale'], 'displayModeBar': True, 'toImageButtonOptions': {'format': 'webp'}}),
             html.H2("창원 NC파크에서 발생한 사고로 인한 피해자의 명복을 빕니다.", style = {'text-align': 'center'}),
-            html.H4("추모로 인한 리그 중지 기간에는 경기 예고를 제공하지 않습니다.", style = {'text-align': 'center'})
+            html.H4("2025-04-01 전 경기 취소", style = {'text-align': 'center'})
         ])
     elif pathname == "/standing":
         return html.Div([
