@@ -123,9 +123,9 @@ def render_page_content(pathname):
                 dcc.Tab(label = '포스트시즌 진출 확률 변화', value = 'psli')
             ]),
             dcc.Graph(id = 'future-fig', config={'modeBarButtonsToRemove': ['select', 'lasso2d', 'autoScale'], 'displayModeBar': True, 'toImageButtonOptions': {'format': 'webp'}}),
-            html.H2("창원 NC파크에서 발생한 사고로 인한 피해자의 명복을 빕니다.", style = {'text-align': 'center'}),
-            html.H4("2025-04-01 전 경기 취소", style = {'text-align': 'center'})
-        ])
+            html.H2("다음 경기 요약"),
+            html.H3(coming['date'].iloc[0].isoformat(), style={'text-align':'center'})
+        ] + coming_games if len(coming) else [html.H2("시즌이 종료되었습니다.")])
     elif pathname == "/standing":
         return html.Div([
             html.H3("팀 별 시즌 중 순위 확률 변화 분석"),
