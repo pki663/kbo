@@ -45,7 +45,7 @@ navbar = dbc.NavbarSimple(
     ],
     fluid = True,
     brand='크보그래프',
-    color='black',
+    color='#002561',
     dark = True,
     sticky = 'top',
     style = {
